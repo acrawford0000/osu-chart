@@ -5,6 +5,11 @@ import (
 	"project/backend/go-osu/enum"
 )
 
+type Config struct {
+	ClientID     string `json:"clientID"`
+	ClientSecret string `json:"clientSecret"`
+}
+
 type UserCredentials struct {
 	ClientID     SensitiveInt    `json:"client_id"`
 	ClientSecret SensitiveString `json:"client_secret"`

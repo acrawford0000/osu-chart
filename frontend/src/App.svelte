@@ -4,6 +4,7 @@
   import List from './components/PlayerList.svelte';
   import ClearAllButton from './components/ClearAllButton.svelte';
   import TextField from './components/AddPlayer.svelte';
+  import GameMode from './components/GameMode.svelte';
   
   let value = '';
 
@@ -19,6 +20,8 @@
   <List/>
 
   <ClearAllButton/>
+
+  <GameMode/>
 
 </main>
 
