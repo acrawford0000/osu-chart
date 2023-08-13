@@ -48,6 +48,8 @@ func main() {
 		Title:            "osu!-chart",
 		Width:            1024,
 		Height:           768,
+		MinWidth:         400,
+		MinHeight:        400,
 		Frameless:        false,
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
 		AssetServer: &assetserver.Options{

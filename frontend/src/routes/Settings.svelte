@@ -10,9 +10,29 @@
 <main>
     <div style="display: flex; justify-content: center;">
         <div style="width: 50%;">
-            <ClientTextfields/>
+            <div class="section">
+                <h2 class="section-title">Client Credentials</h2>
+                <ClientTextfields/>
+            </div>
+            <div class="section">
+                <h2 class="section-title">Game Mode</h2>
+                <GameMode/>
+            </div>
         </div>
     </div>
-    
-    <GameMode/>
 </main>
+
+<style>
+    .section {
+        background-color: #272727;
+        padding: 20px;
+        margin: 10px 0;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .section-title {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+</style>

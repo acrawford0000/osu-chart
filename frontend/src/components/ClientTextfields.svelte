@@ -37,7 +37,7 @@
         <TextField 
             label="Client ID"
             placeholder={clientIdPlaceholder}
-
+            
             bind:value={clientId}
         />
         <TextField 

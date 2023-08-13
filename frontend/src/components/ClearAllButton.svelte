@@ -3,6 +3,6 @@
     import { clearPlayers } from "../store";
 </script>
 
-<ClearAllButton on:click={clearPlayers}>
+<ClearAllButton class="clear-all-button" on:click={clearPlayers}>
     <Label>Clear All</Label>
 </ClearAllButton>

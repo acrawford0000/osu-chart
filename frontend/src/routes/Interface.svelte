@@ -1,16 +1,25 @@
 <script>
-    import IconButton from '../components/IconButton.svelte';
-    import List from '../components/List.svelte';
+    import PlayerList from '../components/PlayerList.svelte';
     import ClearAllButton from '../components/ClearAllButton.svelte';
-    import TextField from '../components/AddPlayer.svelte';
-    import ClientTextfields from '../components/ClientTextfields.svelte';
+    import TextField, { username } from '../components/AddPlayer.svelte';
+    import { players } from '../store';
+    
+
+    let showButton = false;
+
+    $: showButton = $players.length > 0;
 </script>
 
 <main>
+    
     <TextField/>
   
-    <List/>
-  
-    <ClearAllButton/>
+    <PlayerList/>
+
+    {#if showButton}
+        <ClearAllButton/>
+    {/if}
+
 
 </main>
+
