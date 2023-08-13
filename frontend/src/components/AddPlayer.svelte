@@ -19,17 +19,18 @@ function handleAddPlayer() {
     username = '';
 }
 
-function handleKeydown(event) {
+function handleKeyDown(event) {
     if (event.key === 'Enter') {
         handleAddPlayer();
     }
 }
+
 </script>
 
 <TextField
     bind:value={username}
     bind:this={textfield}
-    on:submit={handleAddPlayer}
+    on:keydown={handleKeyDown}
     class="shape-filled"
     variant="filled"
     style="width: 90%"

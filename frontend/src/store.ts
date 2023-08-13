@@ -1,18 +1,47 @@
 import { writable } from "svelte/store";
 import { get } from "svelte/store";
+import { GetUser } from "../wailsjs/go/app/App";
+import { AreOsuAuthCredentialsSet } from "../wailsjs/go/app/App"
 
 
 
 export const players = writable([]);
 
 export async function addPlayer(username) {
-  // Make the API request to get the user object for the given username
-  const response = await fetch(`https://osu.ppy.sh/api/v2/users/${username}`);
-  const user = await response.json();
+  // Check if credentials are set, do not allow player to be added without credentials set
+  if (AreOsuAuthCredentialsSet()) {
+    await updatePlayerData();
+  // Call the GetUser function from your backend to get the user object for the given username
+  const user = await GetUser(username);
 
   // Add the user object to the store
   players.update(currentPlayers => [...currentPlayers, user]);
+  } else {
+    // Credentials are not set, just update players array with the entered username
+    alert("Must set Client ID and Client Secret in settings");
+    return;
+  }
 }
+
+async function updatePlayerData() {
+  // Get current value of players store
+  const currentPlayers = get(players);
+
+  // Iterate over players array
+  for (let i = 0; i < currentPlayers.length; i++) {
+    const player = currentPlayers[i];
+    // Check if player only has a username (i.e. their data was not fetched)
+    if (Object.keys(player).length === 1 && player.username) {
+      // Get player data and update players array
+      const updatedPlayer = await GetUser(player.username);
+      players.update(currentPlayers => {
+        currentPlayers[i] = updatedPlayer;
+        return currentPlayers;
+      });
+    }
+  }
+}
+
 
 export async function fetchPlayerStats() {
   // Get all players from the store
