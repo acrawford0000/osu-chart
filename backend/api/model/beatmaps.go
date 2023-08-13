@@ -1,6 +1,6 @@
 package model
 
-import "project/backend/go-osu/enum"
+import "project/backend/api/enum"
 
 type BeatmapCompact struct {
 	ID          int               `json:"id"`

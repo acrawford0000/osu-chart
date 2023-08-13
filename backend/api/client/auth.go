@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"project/backend/go-osu/enum"
+	"project/backend/api/enum"
 	"time"
 )
 

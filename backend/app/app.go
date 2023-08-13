@@ -6,10 +6,10 @@ import (
 	"errors"
 	"log"
 	"os"
-	"project/backend/go-osu/client"
-	"project/backend/go-osu/client/opts"
-	"project/backend/go-osu/enum"
-	"project/backend/go-osu/model"
+	"project/backend/api/client"
+	"project/backend/api/client/opts"
+	"project/backend/api/enum"
+	"project/backend/api/model"
 	"strconv"
 )
 

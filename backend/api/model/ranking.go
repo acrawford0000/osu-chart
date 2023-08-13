@@ -1,6 +1,6 @@
 package model
 
-import "project/backend/go-osu/client/opts"
+import "project/backend/api/client/opts"
 
 type Rankings struct {
 	Beatmapsets []Beatmapset     `json:"beatmapsets"`

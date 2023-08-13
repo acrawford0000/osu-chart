@@ -1,8 +1,8 @@
 package model
 
 import (
-	"project/backend/go-osu/client/opts"
-	"project/backend/go-osu/enum"
+	"project/backend/api/client/opts"
+	"project/backend/api/enum"
 )
 
 type Discussions struct {

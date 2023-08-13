@@ -21,7 +21,7 @@ import (
 // To learn more about bitwise operators, have a look at it on wikipedia:
 // https://en.wikipedia.org/wiki/Bitwise_operation#Bitwise_operators
 //
-// Credit for the Mods enum goes to thehowl on github: https://github.com/thehowl/go-osuapi/blob/master/mods.go
+// Credit for the Mods enum goes to thehowl on github: https://github.com/thehowl/apiapi/blob/master/mods.go
 type Mods int
 
 const ModNomod Mods = 0

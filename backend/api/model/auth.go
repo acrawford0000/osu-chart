@@ -2,7 +2,7 @@ package model
 
 import (
 	"encoding/json"
-	"project/backend/go-osu/enum"
+	"project/backend/api/enum"
 )
 
 type Config struct {

@@ -1,9 +1,9 @@
 package client
 
 import (
-	"project/backend/go-osu/client/opts"
-	"project/backend/go-osu/enum"
-	"project/backend/go-osu/model"
+	"project/backend/api/client/opts"
+	"project/backend/api/enum"
+	"project/backend/api/model"
 )
 
 // GetRankings returns the current ranking for the specified type and game mode from the osu! API.

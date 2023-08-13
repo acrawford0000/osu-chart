@@ -2,7 +2,7 @@ package opts
 
 import (
 	"fmt"
-	"project/backend/go-osu/enum"
+	"project/backend/api/enum"
 	"reflect"
 )
 
