@@ -2,3 +2,5 @@ build/bin
 node_modules
 frontend/dist
 config.json
+user.json
+osu_auth_credentials.json
