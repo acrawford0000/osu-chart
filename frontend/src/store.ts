@@ -86,7 +86,7 @@ export const selectedMode = writable('standard');
 export const username = writable('');
 export const credentialsSet = writable(false);
 export const clientValid = writable(false);
-export const selectedStats = writable('');
+export const selectedStats = writable('count_rank_ss');
 
 // Check if osu! API credentials are set when the store is initialized
 AreOsuAuthCredentialsSet().then(set => {

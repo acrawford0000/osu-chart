@@ -2,8 +2,9 @@
     import TextField from "@smui/textfield";
     import Icon from '@smui/textfield/icon'
     import AddButton, { Label } from "@smui/button"
+    import GetStatsButton from "@smui/button"
     import WarningCard from "./WarningCard.svelte";
-    import { username, addPlayer, credentialsSet, isClientValid, clientValid } from "../store";
+    import { username, addPlayer, credentialsSet, isClientValid, clientValid, fetchPlayerStats } from "../store";
     import { onMount } from "svelte";
 
     let textfield;
@@ -55,9 +56,18 @@
 <AddButton 
     on:click={handleAddPlayer}
     touch variant="unelevated"
-    style="width: 80%"
+    style="width: 40%"
     >
     <Label>Add Player</Label>
 </AddButton>
+
+<GetStatsButton
+    on:click={fetchPlayerStats}
+    color="secondary"
+    touch variant="unelevated"
+    style="width: 40%"
+    >
+    <Label>Get Stats</Label>
+</GetStatsButton>
 
 <WarningCard message={errorMessage}/>
