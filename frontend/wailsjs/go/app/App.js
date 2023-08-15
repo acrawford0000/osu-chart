@@ -6,16 +6,24 @@ export function AreOsuAuthCredentialsSet() {
   return window['go']['app']['App']['AreOsuAuthCredentialsSet']();
 }
 
+export function GetStatsHistory(arg1) {
+  return window['go']['app']['App']['GetStatsHistory'](arg1);
+}
+
 export function GetUser(arg1) {
   return window['go']['app']['App']['GetUser'](arg1);
 }
 
-export function SetGameMode(arg1) {
-  return window['go']['app']['App']['SetGameMode'](arg1);
+export function IsClientValid() {
+  return window['go']['app']['App']['IsClientValid']();
 }
 
-export function SetOsuAuthCredentials(arg1, arg2) {
-  return window['go']['app']['App']['SetOsuAuthCredentials'](arg1, arg2);
+export function SaveOsuAuthCredentials(arg1, arg2) {
+  return window['go']['app']['App']['SaveOsuAuthCredentials'](arg1, arg2);
+}
+
+export function SetGameMode(arg1) {
+  return window['go']['app']['App']['SetGameMode'](arg1);
 }
 
 export function Startup(arg1) {

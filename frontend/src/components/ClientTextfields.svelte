@@ -1,34 +1,28 @@
 <script>
-    import { onMount } from 'svelte'
     import TextField from "@smui/textfield";
     import SaveButton, { Label } from "@smui/button"
-    import { AreOsuAuthCredentialsSet, SetOsuAuthCredentials } from "../../wailsjs/go/app/App"
+    import { SaveOsuAuthCredentials } from "../../wailsjs/go/app/App"
+    import { credentialsSet } from '../store';
 
     let clientId = "";
     let clientSecret = "";
-    let clientIdPlaceholder = "";
-    let clientSecretPlaceholder = "";
 
-    onMount(async () => {
-        const areCredentialsSet = await AreOsuAuthCredentialsSet();
-        if (areCredentialsSet) {
-            // Display asterisks in the text fields
-            clientIdPlaceholder = "*****";
-            clientSecretPlaceholder = "*****";
-        }
-    });
-
-    function onSave() {
+    async function onSave() {
         if (clientId === "" || clientSecret === "") {
             alert("Client ID and Client Secret must not be empty");
             return;
         }
-        SetOsuAuthCredentials(clientId, clientSecret);
+        try {
+            await SaveOsuAuthCredentials(clientId, clientSecret);
+            // Credentials were successfully saved and a new client was created
+            credentialsSet.set(true);
+        } catch (error) {
+            // An error occurred while saving the credentials or creating a new client
+            console.error(error);
+            alert("An error occurred while saving your API credentials: " + error.message);
+        }
     }
 
-    function clearCredentials() {
-        SetOsuAuthCredentials("", "")
-    }
 
 </script>
 
@@ -36,21 +30,16 @@
     <div style="display: flex; flex-direction: column;">
         <TextField 
             label="Client ID"
-            placeholder={clientIdPlaceholder}
-            
             bind:value={clientId}
         />
         <TextField 
             label="Client Secret"
-            placeholder={clientSecretPlaceholder}
-
             bind:value={clientSecret} 
 
         />
         <SaveButton
             type="submit"
             touch variant="unelevated"
-
         >
         <Label>Save</Label>
         </SaveButton>

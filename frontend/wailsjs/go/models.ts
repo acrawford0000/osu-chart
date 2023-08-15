@@ -566,6 +566,63 @@ export namespace model {
 		    return a;
 		}
 	}
+	export class UserStats {
+	    count300: number;
+	    count100: number;
+	    count50: number;
+	    playcount: number;
+	    ranked_score: number;
+	    total_score: number;
+	    pp_rank: number;
+	    level: number;
+	    pp_raw: number;
+	    accuracy: number;
+	    count_rank_ss: number;
+	    count_rank_s: number;
+	    count_rank_a: number;
+	    // Go type: time
+	    timestamp: any;
+	
+	    static createFrom(source: any = {}) {
+	        return new UserStats(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.count300 = source["count300"];
+	        this.count100 = source["count100"];
+	        this.count50 = source["count50"];
+	        this.playcount = source["playcount"];
+	        this.ranked_score = source["ranked_score"];
+	        this.total_score = source["total_score"];
+	        this.pp_rank = source["pp_rank"];
+	        this.level = source["level"];
+	        this.pp_raw = source["pp_raw"];
+	        this.accuracy = source["accuracy"];
+	        this.count_rank_ss = source["count_rank_ss"];
+	        this.count_rank_s = source["count_rank_s"];
+	        this.count_rank_a = source["count_rank_a"];
+	        this.timestamp = this.convertValues(source["timestamp"], null);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 
 }
 

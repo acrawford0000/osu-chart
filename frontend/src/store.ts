@@ -1,25 +1,22 @@
 import { writable } from "svelte/store";
 import { get } from "svelte/store";
-import { GetUser } from "../wailsjs/go/app/App";
-import { AreOsuAuthCredentialsSet } from "../wailsjs/go/app/App"
+import { GetUser, AreOsuAuthCredentialsSet, IsClientValid, GetStatsHistory } from "../wailsjs/go/app/App";
 
-
-
+// Set up the player store and all functions that go with it
 export const players = writable([]);
 
 export async function addPlayer(username) {
-  // Check if credentials are set, do not allow player to be added without credentials set
-  if (AreOsuAuthCredentialsSet()) {
-    await updatePlayerData();
+  // Check if there are any players without data, if so, update them. This is an extra precaution.
+  await updatePlayerData();
+  
   // Call the GetUser function from your backend to get the user object for the given username
+  try {
   const user = await GetUser(username);
 
   // Add the user object to the store
   players.update(currentPlayers => [...currentPlayers, user]);
-  } else {
-    // Credentials are not set, just update players array with the entered username
-    alert("Must set Client ID and Client Secret in settings");
-    return;
+  } catch (error) {
+    alert("An error occurred while getting user data: " + error.message);
   }
 }
 
@@ -42,7 +39,6 @@ async function updatePlayerData() {
   }
 }
 
-
 export async function fetchPlayerStats() {
   // Get all players from the store
   let allPlayers = [];
@@ -54,17 +50,20 @@ export async function fetchPlayerStats() {
   for (const player of allPlayers) {
     // Only fetch stats for players that don't already have stats
     if (!player.stats) {
-      // Make the API request to get the player's stats using their user ID
-      const response = await fetch(`https://osutrack-api.ameo.dev/stats_history?user=${player.id}&mode=0`);
-      const stats = await response.json();
+      try {
+        // Call the GetStatsHistory function from the backend to get the player's stats using their user ID
+        const stats = await GetStatsHistory(player.id);
 
-      // Update the player object in the store with the returned stats
-      players.update(currentPlayers => currentPlayers.map(p => {
-        if (p.username === player.username) {
-          return { ...p, stats };
-        }
-        return p;
-      }));
+        // Update the player object in the store with the returned stats
+        players.update(currentPlayers => currentPlayers.map(p => {
+          if (p.username === player.username) {
+            return { ...p, stats };
+          }
+          return p;
+        }));
+      } catch (error) {
+        console.error(`Error fetching stats for player ${player.username}:`, error);
+      }
     }
   }
 }
@@ -76,3 +75,25 @@ export function removePlayer(username) {
 export function clearPlayers() {
   players.set([]);
 }
+
+export function isClientValid() {
+  IsClientValid().then(set => {
+    clientValid.set(set);
+  });
+}
+// Set up various stores
+export const selectedMode = writable('standard');
+export const username = writable('');
+export const credentialsSet = writable(false);
+export const clientValid = writable(false);
+export const selectedStats = writable('');
+
+// Check if osu! API credentials are set when the store is initialized
+AreOsuAuthCredentialsSet().then(set => {
+  credentialsSet.set(set);
+});
+
+// Check is client was successfully created
+IsClientValid().then(set => {
+  clientValid.set(set);
+});

@@ -2,6 +2,7 @@
     import { writable } from 'svelte/store';
     import ClientTextfields from "../components/ClientTextfields.svelte";
     import GameMode from "../components/GameMode.svelte";
+    import StatSelector from '../components/StatSelector.svelte';
 
     const clientId = writable('');
     const clientSecret = writable('');
@@ -17,6 +18,10 @@
             <div class="section">
                 <h2 class="section-title">Game Mode</h2>
                 <GameMode/>
+            </div>
+            <div class="section">
+                <h2 class="section-title">Stats</h2>
+                <StatSelector/>
             </div>
         </div>
     </div>

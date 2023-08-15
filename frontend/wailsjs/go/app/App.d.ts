@@ -5,10 +5,14 @@ import {context} from '../models';
 
 export function AreOsuAuthCredentialsSet():Promise<boolean>;
 
+export function GetStatsHistory(arg1:number):Promise<Array<model.UserStats>>;
+
 export function GetUser(arg1:string):Promise<model.User>;
 
-export function SetGameMode(arg1:string):Promise<void>;
+export function IsClientValid():Promise<boolean>;
 
-export function SetOsuAuthCredentials(arg1:string,arg2:string):Promise<void>;
+export function SaveOsuAuthCredentials(arg1:string,arg2:string):Promise<void>;
+
+export function SetGameMode(arg1:string):Promise<void>;
 
 export function Startup(arg1:context.Context):Promise<void>;
