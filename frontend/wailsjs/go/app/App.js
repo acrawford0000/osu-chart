@@ -6,8 +6,16 @@ export function AreOsuAuthCredentialsSet() {
   return window['go']['app']['App']['AreOsuAuthCredentialsSet']();
 }
 
-export function GetStatsHistory(arg1) {
-  return window['go']['app']['App']['GetStatsHistory'](arg1);
+export function CreateNewClient() {
+  return window['go']['app']['App']['CreateNewClient']();
+}
+
+export function GetCredentials() {
+  return window['go']['app']['App']['GetCredentials']();
+}
+
+export function GetStatsUpdates(arg1) {
+  return window['go']['app']['App']['GetStatsUpdates'](arg1);
 }
 
 export function GetUser(arg1) {

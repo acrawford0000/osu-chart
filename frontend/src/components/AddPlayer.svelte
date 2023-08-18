@@ -4,29 +4,26 @@
     import AddButton, { Label } from "@smui/button"
     import GetStatsButton from "@smui/button"
     import WarningCard from "./WarningCard.svelte";
-    import { username, addPlayer, credentialsSet, isClientValid, clientValid, fetchPlayerStats } from "../store";
-    import { onMount } from "svelte";
+    import { username, addPlayer, fetchPlayerStats } from "../store";
+    import { IsClientValid, AreOsuAuthCredentialsSet } from "../../wailsjs/go/app/App"
 
     let textfield;
     let errorMessage = '';
 
     function handleIconClick() {
-        username.set('');
+        handleAddPlayer;
         textfield.focus();
     }
 
-    onMount(async () => {
-        await isClientValid;
-    });
-
     async function handleAddPlayer() {
-        await isClientValid();
-        if (!$credentialsSet) {
-            alert("Please set your API credentials in the settings before adding a player.");
+        const areCredentialsSet = await AreOsuAuthCredentialsSet();
+        if (!areCredentialsSet) {
+            errorMessage = "Please set your API credentials in the settings before adding a player.";
             return;
         }
-        if (!$clientValid) {
-            alert("Client is invalid. Please check your credentials and try again.");
+        const isClientValid = await IsClientValid();
+        if (!isClientValid) {
+            errorMessage = "Client is invalid. Please check your credentials and try again.";
             return;
         }
         addPlayer($username);

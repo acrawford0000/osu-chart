@@ -202,41 +202,6 @@ func (g GameMode) String() string {
 	return string(g)
 }
 
-// DiscussionMessageType is a type for specifying the type of messages in beatmapset discussion.
-type DiscussionMessageType string
-
-const (
-	DiscussionMessageTypeFirst  DiscussionMessageType = "first"
-	DiscussionMessageTypeReply  DiscussionMessageType = "reply"
-	DiscussionMessageTypeSystem DiscussionMessageType = "system"
-)
-
-func (d DiscussionMessageType) String() string {
-	return string(d)
-}
-
-// DiscussionScore is used for specifying the score of a message inside a beatmapset discussion.
-type DiscussionScore int
-
-const (
-	DiscussionScoreDownvote DiscussionScore = iota - 1
-	_                                       // skip 0 value
-	DiscussionScoreUpvote
-)
-
-var discussionScoreStrings = map[DiscussionScore]string{
-	DiscussionScoreUpvote:   "upvote",
-	DiscussionScoreDownvote: "downvote",
-}
-
-func (d DiscussionScore) Int() int {
-	return int(d)
-}
-
-func (d DiscussionScore) String() string {
-	return discussionScoreStrings[d]
-}
-
 // BaseEndpoint is a type for osu API v2 base URLs.
 type BaseEndpoint string
 
@@ -308,22 +273,6 @@ const (
 
 func (g Grade) String() string {
 	return string(g)
-}
-
-// MessageType is a type for specifying a message type in a beatmapset discussion.
-type MessageType string
-
-const (
-	MessageTypeSuggestion MessageType = "suggestion"
-	MessageTypeProblem    MessageType = "problem"
-	MessageTypeMapperNote MessageType = "mapper_note"
-	MessageTypePraise     MessageType = "praise"
-	MessageTypeHype       MessageType = "hype"
-	MessageTypeReview     MessageType = "review"
-)
-
-func (m MessageType) String() string {
-	return string(m)
 }
 
 // RankedStatus is a type for specifying a ranked status of a beatmap/beatmapset.
@@ -404,42 +353,6 @@ func (r RankingType) String() string {
 	return string(r)
 }
 
-// ScoreType is a type for specifying a score type. For example, Best for top plays.
-type ScoreType string
-
-const (
-	ScoreTypeRecent ScoreType = "recent"
-	ScoreTypeBest   ScoreType = "best"
-	ScoreTypeFirsts ScoreType = "firsts"
-)
-
-func (s ScoreType) String() string {
-	return string(s)
-}
-
-// SearchMode is a type for specifying a search scope.
-type SearchMode int
-
-const (
-	SearchModeAll SearchMode = iota
-	SearchModeUser
-	SearchModeWikiPage
-)
-
-var searchModeStrings = map[SearchMode]string{
-	SearchModeAll:      "all",
-	SearchModeUser:     "user",
-	SearchModeWikiPage: "wiki_page",
-}
-
-func (s SearchMode) Int() int {
-	return int(s)
-}
-
-func (s SearchMode) String() string {
-	return searchModeStrings[s]
-}
-
 // UserBeatmapType is a type for specifying user beatmap types.
 type UserBeatmapType string
 
@@ -481,76 +394,6 @@ const (
 
 func (f ForumTopicType) String() string {
 	return string(f)
-}
-
-// MultiplayerScoresSort is a type for specifying the multiplayer score sort method.
-type MultiplayerScoresSort string
-
-const (
-	MultiplayerScoresSortAsc  MultiplayerScoresSort = "score_asc"
-	MultiplayerScoresSortDesc MultiplayerScoresSort = "score_desc"
-)
-
-func (m MultiplayerScoresSort) String() string {
-	return string(m)
-}
-
-// MultiplayerMatchEventType is a type for specifying the multiplayer match event type.
-type MultiplayerMatchEventType string
-
-const (
-	MultiplayerMatchEventTypeCreated     MultiplayerMatchEventType = "match-created"
-	MultiplayerMatchEventTypeDisbanded   MultiplayerMatchEventType = "match-disbanded"
-	MultiplayerMatchEventTypeGame        MultiplayerMatchEventType = "other"
-	MultiplayerMatchEventTypeHostChanged MultiplayerMatchEventType = "host-changed"
-	MultiplayerMatchEventTypeJoined      MultiplayerMatchEventType = "player-joined"
-	MultiplayerMatchEventTypeKicked      MultiplayerMatchEventType = "player-kicked"
-	MultiplayerMatchEventTypeLeft        MultiplayerMatchEventType = "player-left"
-)
-
-func (m MultiplayerMatchEventType) String() string {
-	return string(m)
-}
-
-// MultiplayerScoringType is a type for specifying a multiplayer scoring type.
-type MultiplayerScoringType string
-
-const (
-	MultiplayerScoringTypeScore    MultiplayerScoringType = "score"
-	MultiplayerScoringTypeAccuracy MultiplayerScoringType = "accuracy"
-	MultiplayerScoringTypeCombo    MultiplayerScoringType = "combo"
-	MultiplayerScoringTypeScoreV2  MultiplayerScoringType = "scorev2"
-)
-
-func (m MultiplayerScoringType) String() string {
-	return string(m)
-}
-
-// MultiplayerTeamType is a type for specifying a multiplayer team type.
-type MultiplayerTeamType string
-
-const (
-	HeadToHead MultiplayerTeamType = "head-to-head"
-	TagCoop    MultiplayerTeamType = "tag-coop"
-	TeamVS     MultiplayerTeamType = "team-vs"
-	TagTeamVS  MultiplayerTeamType = "tag-team-vs"
-)
-
-func (m MultiplayerTeamType) String() string {
-	return string(m)
-}
-
-// MultiplayerTeam is a type for specifying the multiplayer team.
-type MultiplayerTeam string
-
-const (
-	None MultiplayerTeam = "none"
-	Blue MultiplayerTeam = "blue"
-	Red  MultiplayerTeam = "red"
-)
-
-func (m MultiplayerTeam) String() string {
-	return string(m)
 }
 
 // NewsPostKey is a type for specifying which lookup method is going to be used.

@@ -2,6 +2,16 @@ package model
 
 import "project/backend/api/enum"
 
+type MyUserStruct struct {
+	ID          int      `json:"id"`
+	Username    string   `json:"username"`
+	AvatarURL   string   `json:"avatar_url"`
+	CountryCode string   `json:"country_code"`
+	Country     Country  `json:"country"`
+	CoverURL    string   `json:"cover_url"`
+	Playstyle   []string `json:"playstyle"`
+}
+
 type UserCompact struct {
 	ID                       int                    `json:"id"`
 	Username                 string                 `json:"username"`

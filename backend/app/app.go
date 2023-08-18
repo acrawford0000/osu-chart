@@ -12,7 +12,6 @@ import (
 	"project/backend/api/model"
 	"project/backend/api/osutrack"
 	"strconv"
-	"time"
 )
 
 // App struct
@@ -30,7 +29,6 @@ func NewApp() *App {
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 	NewClientOnStartup()
-	createTrackClient()
 }
 
 // osu!api v2 setup and functions
@@ -60,6 +58,15 @@ func CreateNewClient() error {
 	log.Printf("Client set: %v", Client)
 	return nil
 }
+func (a *App) CreateNewClient() error {
+	client, err := client.NewClient(getOsuAuthCredentials())
+	if err != nil {
+		return errors.New("failed to create a new client. Please verify your credentials are correct")
+	}
+	Client = client
+	log.Printf("Client set: %v", Client)
+	return nil
+}
 
 // IsClientValid checks if the osu! API client was successfully created
 func (a *App) IsClientValid() bool {
@@ -77,6 +84,20 @@ const osuAuthCredentialsFile = "osu_auth_credentials.json"
 func (a *App) AreOsuAuthCredentialsSet() bool {
 	id, secret := getOsuAuthCredentials()
 	return id != 0 && secret != ""
+}
+func (a *App) GetCredentials() (osuAuthCredentials, error) {
+	jsonData, err := os.ReadFile(osuAuthCredentialsFile)
+	if err != nil {
+		log.Printf("Failed to read osu auth credentials file: %v", err)
+		return osuAuthCredentials{}, err
+	}
+	var data osuAuthCredentials
+	err = json.Unmarshal(jsonData, &data)
+	if err != nil {
+		log.Printf("Failed to unmarshal osu auth credentials: %v", err)
+		return osuAuthCredentials{}, err
+	}
+	return data, nil
 }
 
 func (a *App) SaveOsuAuthCredentials(id string, secret string) error {
@@ -123,9 +144,11 @@ func getOsuAuthCredentials() (int, string) {
 	return clientID, data.ClientSecret
 }
 
+var userData *model.User
+
 // Main function to get user profile details and return them to the frontend
-func (a *App) GetUser(username string) (user *model.User, err error) {
-	log.Printf("GetUser: Client = %v", Client)
+func (a *App) GetUser(username string) (user *model.MyUserStruct, err error) {
+	// log.Printf("GetUser: Client = %v", Client)
 
 	key := enum.UserKeyUsername
 	opts := opts.GetUserOpts{
@@ -134,11 +157,12 @@ func (a *App) GetUser(username string) (user *model.User, err error) {
 		Key:      &key,
 	}
 
-	user, err = Client.GetUser(opts)
-
+	userData, err = Client.GetUser(opts)
 	if err != nil {
 		return nil, err
 	}
+
+	user = client.GetMyUserData(userData)
 
 	userJSON, err := json.Marshal(user)
 	if err != nil {
@@ -176,15 +200,25 @@ func (a *App) SetGameMode(mode string) {
 }
 
 // osutrack setup and functions
-var trackClient *osutrack.Client
-
-func createTrackClient() {
-	trackClient = osutrack.NewClient()
-}
-
 var trackmode int = 0
 
-func (a *App) GetStatsHistory(id int) (stats []*model.UserStats, err error) {
-	trackClient.GetStatsHistory(id, trackmode, time.Time{}, time.Time{})
-	return stats, err
+func (a *App) GetStatsUpdates(id int) (stats []*model.UserStats, err error) {
+	statsUpdates, err := osutrack.GetStatsUpdates(id, trackmode)
+	if err != nil {
+		log.Print("Failed to get user stats.", err)
+		return nil, err
+	}
+
+	userstatsJSON, err := json.Marshal(statsUpdates)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.WriteFile("userstats.json", userstatsJSON, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return statsUpdates, err
+
 }
