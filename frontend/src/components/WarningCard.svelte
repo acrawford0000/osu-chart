@@ -8,7 +8,12 @@
 
 <style>
     .warning-card {
-        width: 90%;
+        position:fixed;
+        bottom: 0;
+        left: 50%;
+        transform:translateX(-50%);
+        width: 70%;
+        max-width: 500px;
         padding: 20px;
         margin: 10px auto;
         background-color: #f44336;
@@ -16,6 +21,7 @@
         border-radius: 5px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         text-align: center;
+        z-index: 9999;
     }
     .close-button {
         float: right;

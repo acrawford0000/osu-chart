@@ -2,7 +2,7 @@
     import Radio from '@smui/radio'
     import FormField from '@smui/form-field'
     import { model } from "../../wailsjs/go/models"
-    import { selectedStats } from '../store';
+    import { selectedStat } from '../store';
     import { onMount } from 'svelte';
 
     let stats = [];
@@ -16,8 +16,8 @@
 
     function handleSelect(event) {
         // Update the store with the new selected game mode
-        selectedStats.set(event.target.value);
-        console.log("selectedStats:", $selectedStats);
+        selectedStat.set(event.target.value);
+        console.log("selectedStats:", $selectedStat);
     }
 </script>
 
@@ -25,7 +25,7 @@
     {#each stats as stat}
         <FormField>
             <Radio
-                bind:group={$selectedStats}
+                bind:group={$selectedStat}
                 value={stat}
                 on:change={handleSelect}
             />

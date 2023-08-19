@@ -11,6 +11,9 @@
     let showSecret = false;
 
     async function onSave() {
+        if ($clientValid) {
+            return;
+        }
         if ($clientId === "" || $clientSecret === "") {
             errorMessage = "Client ID and Client Secret must not be empty";
             return;
@@ -56,8 +59,6 @@
         >
         <Label>Save</Label>
         </SaveButton>
-
-
     </div>
     
 </form>

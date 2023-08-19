@@ -65,6 +65,7 @@
   <nav>
     <TabBar {tabs} let:tab bind:active>
       <Tab {tab} on:click={() => handleTabClick(tab)}>
+        <Icon class="material-icons">{tab.icon}</Icon>
         <Label>{tab.label}</Label>
       </Tab>
     </TabBar>
