@@ -6,7 +6,7 @@
     import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
     import { CanvasRenderer } from 'echarts/renderers';
     import { use } from 'echarts/core';
-    import * as dayjs from 'dayjs';
+    import { get } from 'svelte/store';
 
     use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
 
@@ -15,15 +15,22 @@
     let unsubscribePlayers;
     let unsubscribeSelectedStat;
 
+    // Get data from players store
+    let allPlayers = [];
+    players.subscribe(value => {
+        allPlayers = value;
+        updateChart();
+    });
+
     onMount(() => {
         // Initialize chart
         chart = echarts.init(chartDiv, 'dark');
         updateChart();
 
-        // Subscribe to players store and update chart when it changes
+/*         // Subscribe to players store and update chart when it changes
         unsubscribePlayers = players.subscribe(() => {
             updateChart();
-        });
+        }); */
 
         // Subscribe to selectedStat store and update chart when it changes
         unsubscribeSelectedStat = selectedStat.subscribe(() => {
@@ -44,18 +51,21 @@
         });
         unsubscribe();
 
-        // Get selected stat from selectedStat store
-        let currentSelectedStat = '';
-        const unsubscribe2 = selectedStat.subscribe(currentSelectedStat => {
-            currentSelectedStat = currentSelectedStat;
-        });
-        unsubscribe2();
+        // Check if allPlayers array is empty
+        if (allPlayers.length === 0) {
+            // If allPlayers array is empty, clear chart and return
+            chart.clear();
+            return;
+        }
 
-        // Map data to format needed for chart
+        // Get selected stat from selectedStat store
+        const currentSelectedStat = get(selectedStat);
+
+        // Set up series data for each player
         const series = allPlayers.map(player => ({
             name: player.username,
             type: 'line',
-            data: player.stats.map(stat => stat[currentSelectedStat])
+            data: player.stats.map(stat => [stat.timestamp, stat[currentSelectedStat]])
         }));
 
         // Set chart options
@@ -63,12 +73,9 @@
             tooltip: {
                 trigger: 'axis'
             },
-            legend: {
-                data: allPlayers.map(player => player.username)
-            },
+            legend: {},
             xAxis: {
-                type: 'category',
-                data: allPlayers[0]?.stats.map(stat => dayjs(stat.timestamp).format('YYYY-MM-DD HH:mm:ss'))
+                type: 'time',
             },
             yAxis: {
                 type: 'value'
@@ -88,4 +95,7 @@
     });
 </script>
 
-<div bind:this={chartDiv} style="width: 100%; height: 100%;"></div>
+<div bind:this={chartDiv} style="width: 100%; height: 500px;"></div>
+<div>
+    Selected Stat: {$selectedStat}
+</div>

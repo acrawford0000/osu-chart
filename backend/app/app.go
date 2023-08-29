@@ -58,6 +58,7 @@ func CreateNewClient() error {
 	log.Printf("Client set: %v", Client)
 	return nil
 }
+
 func (a *App) CreateNewClient() error {
 	client, err := client.NewClient(getOsuAuthCredentials())
 	if err != nil {
@@ -221,4 +222,13 @@ func (a *App) GetStatsUpdates(id int) (stats []*model.UserStats, err error) {
 
 	return statsUpdates, err
 
+}
+
+func (a *App) SavePlayerData(playerData string) error {
+	// Write player data to a file
+	err := os.WriteFile("players.json", []byte(playerData), 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }

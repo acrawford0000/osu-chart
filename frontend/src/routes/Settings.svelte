@@ -29,7 +29,7 @@
 
 <style>
     .section {
-        background-color: #272727;
+        background-color: #1e1f22;
         padding: 20px;
         margin: 10px 0;
         border-radius: 5px;

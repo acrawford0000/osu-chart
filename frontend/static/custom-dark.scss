@@ -1,0 +1,28 @@
+@use '@material/theme/color-palette';
+
+$text: #ffffff;
+$background: #000000;
+$primary: #8fb3ff;
+$secondary: #001361;
+$accent: #d41e6d;
+
+@use '@material/theme/index' as theme with (
+  $primary: $primary,
+  $secondary: $secondary,
+  $surface: #fff,
+  $background: $background,
+  $error: $accent
+);
+
+html,
+body {
+  background-color: $background;
+  color: if(theme.contrast-tone($background) == 'dark', #000, #fff);
+}
+
+a {
+  color: color-palette.$blue-500;
+}
+a:visited {
+  color: color-palette.$blue-800;
+}

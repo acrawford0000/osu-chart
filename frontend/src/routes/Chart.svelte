@@ -1,10 +1,10 @@
 <script>
     import PlayerChart from "../components/PlayerChart.svelte";
-
+    import Chart from "../components/PlayerChart3.svelte"
 </script>
 
 <main class="main">
-    <PlayerChart/>
+    <Chart/>
 </main>
 
 <style>

@@ -18,7 +18,12 @@
         <img class="player-avatar" src={player.avatar_url} alt="Avatar" />
         <div class="player-info">
           <div class="player-username">{player.username}</div>
-          <div class="player-id">ID: {player.id}</div>
+          <div class="player-country">        
+            <img class="player-flag" src= {`https://s.ppy.sh/images/flags/${player.country.code.toLowerCase()}.gif`}
+            alt={player.country.name}/>
+            {player.country.name}
+          </div>
+          <!-- <div class="player-id">ID: {player.id}</div> -->
         </div>
         <span
           class="material-icons player-remove-button"
@@ -75,15 +80,29 @@
     border-radius: 50%;
   }
   .player-info {
-    margin-left: 10px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 60%;
+    transform: translate(-50%, -50%);
+    align-content: center;
+    justify-content: center;
   }
   .player-username {
     font-size: 18px;
     font-weight: bold;
   }
-  .player-id {
+  .player-country {
     font-size: 12px;
   }
+  .player-flag {
+    width: 16px;
+    height: 11px;
+    margin-right: 2%;
+  }
+/*   .player-id {
+    font-size: 12px;
+  } */
   .player-remove-button {
     position: absolute;
     right: 10px;

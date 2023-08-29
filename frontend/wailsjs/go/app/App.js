@@ -30,6 +30,10 @@ export function SaveOsuAuthCredentials(arg1, arg2) {
   return window['go']['app']['App']['SaveOsuAuthCredentials'](arg1, arg2);
 }
 
+export function SavePlayerData(arg1) {
+  return window['go']['app']['App']['SavePlayerData'](arg1);
+}
+
 export function SetGameMode(arg1) {
   return window['go']['app']['App']['SetGameMode'](arg1);
 }

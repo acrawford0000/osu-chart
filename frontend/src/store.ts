@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 import { get } from "svelte/store";
-import { GetUser, IsClientValid, GetStatsUpdates } from "../wailsjs/go/app/App";
+import { GetUser, IsClientValid, GetStatsUpdates, SavePlayerData } from "../wailsjs/go/app/App";
+import * as d3 from "d3";
 
 // Set up various stores
 export const selectedMode = writable('standard');
@@ -92,4 +93,15 @@ export function isClientValid() {
   IsClientValid().then(set => {
     clientValid.set(set);
   });
+}
+
+export async function savePlayerData(playerData: string) {
+  try {
+    // Call the backend function with the player data
+    await SavePlayerData(playerData);
+    console.log('Successfully saved player data');
+  } catch (error) {
+    console.error('Error saving player data:', error);
+    throw error;
+  }
 }

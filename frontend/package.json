@@ -24,6 +24,7 @@
     "@smui/textfield": "^7.0.0-beta.14",
     "@sveltejs/vite-plugin-svelte": "^1.0.1",
     "@tsconfig/svelte": "^3.0.0",
+    "@types/d3": "^7.4.0",
     "prettier": "3.0.0",
     "prettier-plugin-svelte": "^3.0.3",
     "sass": "^1.64.1",
@@ -37,8 +38,12 @@
     "vite": "^3.0.7"
   },
   "dependencies": {
+    "@types/chart.js": "^2.9.37",
     "chart.js": "^4.3.3",
-    "dayjs": "^1.11.9",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "chartjs-plugin-zoom": "^2.0.1",
+    "d3": "^7.8.5",
+    "date-fns": "^2.30.0",
     "echarts": "^5.4.3"
   }
 }
