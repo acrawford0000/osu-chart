@@ -1,16 +1,16 @@
 <script>
-  import { Router, Route, navigate } from "svelte-routing";
-  import Interface from "./routes/Interface.svelte";
-  import Settings from "./routes/Settings.svelte"
-  import Chart from "./routes/Chart.svelte";
-  import Tab, { Icon, Label } from '@smui/tab';
-  import TabBar from '@smui/tab-bar';
+  import Sidebar from "./components/Sidebar.svelte";
+  import PageContent from "./components/PageContent.svelte";
   import WarningCard from "./components/WarningCard.svelte";
   import { clientId, clientSecret, credentialsSet, clientValid } from "./store";
   import { GetCredentials, AreOsuAuthCredentialsSet, CreateNewClient, IsClientValid } from "../wailsjs/go/app/App"
   import { onMount } from "svelte";
+  import { EventsOn, EventsEmit } from '../wailsjs/runtime'
  
   onMount(async () => {
+    
+
+
     if (await AreOsuAuthCredentialsSet()) {
         try {
             const data = await GetCredentials();
@@ -32,49 +32,18 @@
 });
 
   let errorMessage = '';
-  export let url = "/";
-  let tabs = [
-    {
-      icon: 'list',
-      label: 'Players',
-      path: '/'
-    },
-    {
-      icon: 'settings',
-      label: 'Settings',
-      path: '/settings'
-    },
-    {
-      icon: 'stacked_line_chart',
-      label: 'Chart',
-      path: '/chart'
-    },
-  ];
-  
-  let active = tabs[0];
-  
-  function handleTabClick(tab) {
-    active = tab;
-    navigate(tab.path);
-  }
-
 </script>
 
+<main>
+  <Sidebar />
+  <PageContent />
 
-<Router {url}>
-  <nav>
-    <TabBar {tabs} let:tab bind:active>
-      <Tab {tab} on:click={() => handleTabClick(tab)}>
-        <Icon class="material-icons">{tab.icon}</Icon>
-        <Label>{tab.label}</Label>
-      </Tab>
-    </TabBar>
-  </nav>
-  <div>
-    <Route path="/chart" component={Chart} />
-    <Route path="/settings" component={Settings} />
-    <Route path="/" ><Interface /></Route>
-  </div>
-</Router>
+</main>
 
 <WarningCard message={errorMessage}/>
+
+<style>
+  .main {
+    display: flex;
+  }
+</style>

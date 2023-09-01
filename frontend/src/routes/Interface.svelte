@@ -24,7 +24,7 @@ onMount(async () => {
 </script>
 
 <main>
-    <div style="width: 100%;" class="add">
+    <div class="add">
         <TextField/>
     </div>
         <PlayerList/>
@@ -38,13 +38,11 @@ onMount(async () => {
 
 <style>
     .add {
-        align-self: center;
         padding: 20px;
         margin: 10px 0;
     }
     main {
         display: flex;
-        flex-direction: column;
-        align-items: center;
+        justify-content: center;
     }
 </style>
