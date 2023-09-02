@@ -1,6 +1,6 @@
 <script>
-    import PlayerChart from "../components/PlayerChart.svelte";
     import Chart from "../components/PlayerChart3.svelte"
+    import StatSelector from "../components/StatSelectorV2.svelte";
 </script>
 
 <main class="main">

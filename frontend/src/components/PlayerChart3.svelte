@@ -1,4 +1,5 @@
 <script lang="ts">
+    import StatSelectorV2 from './StatSelectorV2.svelte';
     import { onMount, onDestroy } from 'svelte';
     import { players, selectedStat } from '../store';
     import { get } from 'svelte/store';
@@ -117,3 +118,10 @@
 <div>
     {$selectedStat}
 </div>
+
+<style>
+    canvas {
+        height: 75%;
+        width: 80%;
+    }
+</style>

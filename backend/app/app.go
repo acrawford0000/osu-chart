@@ -28,25 +28,10 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
-	NewClientOnStartup()
+	// NewClientOnStartup()
 }
 
 // osu!api v2 setup and functions
-// Check for credentials on startup and if they exist, create a new client
-func NewClientOnStartup() {
-
-	// Check credentials from JSON file
-	id, secret := getOsuAuthCredentials()
-
-	// Create client if credentials set
-	if id != 0 && secret != "" {
-		CreateNewClient()
-	}
-
-}
-
-// Initialize and create a new client
-// Get auth credentials for the client
 var Client *client.OsuClient
 
 func CreateNewClient() error {
@@ -63,6 +48,7 @@ func (a *App) CreateNewClient() error {
 	client, err := client.NewClient(getOsuAuthCredentials())
 	if err != nil {
 		return errors.New("failed to create a new client. Please verify your credentials are correct")
+
 	}
 	Client = client
 	log.Printf("Client set: %v", Client)
@@ -84,8 +70,12 @@ const osuAuthCredentialsFile = "osu_auth_credentials.json"
 // Display whether or not client ID and Secret exist
 func (a *App) AreOsuAuthCredentialsSet() bool {
 	id, secret := getOsuAuthCredentials()
-	return id != 0 && secret != ""
+	if id != 0 && secret != "" {
+		return true
+	}
+	return false
 }
+
 func (a *App) GetCredentials() (osuAuthCredentials, error) {
 	jsonData, err := os.ReadFile(osuAuthCredentialsFile)
 	if err != nil {
@@ -149,7 +139,6 @@ var userData *model.User
 
 // Main function to get user profile details and return them to the frontend
 func (a *App) GetUser(username string) (user *model.MyUserStruct, err error) {
-	// log.Printf("GetUser: Client = %v", Client)
 
 	key := enum.UserKeyUsername
 	opts := opts.GetUserOpts{

@@ -25,7 +25,9 @@
     }
   ];
 
-  let active = links[0];    
+  let active = links[0];
+  let activeBarY = 0;
+  let sidebarItems = [];
   function handleLinkClick(link) {
     active = link;
     navigate(link.path);
@@ -37,15 +39,23 @@
     }
   }
   
+  $: {
+    const activeIndex = links.findIndex(link => link.path === active.path);
+    if (sidebarItems[activeIndex]) {
+      activeBarY = sidebarItems[activeIndex].offsetTop;
+    }
+  }
   </script>
 
 <div class="sidebar">
   <Router>
+    <div class="active-bar" style="transform: translateY({activeBarY}px)"></div>
     {#each links as link, index}
       {#if index === links.length - 1}
         <div class="divider"></div>
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <div 
+          bind:this={sidebarItems[index]}
           class="sidebar-item last-item" 
           tabindex="0"
           on:click={() => handleLinkClick(link)}
@@ -57,6 +67,7 @@
       {:else}
         <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
         <div 
+          bind:this={sidebarItems[index]}
           class="sidebar-item" 
           tabindex="0"
           on:click={() => handleLinkClick(link)}
@@ -82,6 +93,7 @@
     margin: 0;
     background-color: #1e1f22;
     align-items: center;
+    z-index: 9999;
   }
   .sidebar-item {
     display: flex;
@@ -102,7 +114,7 @@
     cursor: pointer;
     box-shadow: 0px 4px 6px -1px rgba(0,0,0,0.1),0px 2px 4px -1px rgba(0,0,0,0.06);
     transition-property: all;
-    transition-duration: .3s;
+    transition-duration: .15s;
     transition-timing-function: linear;
   }
   .sidebar-item:hover {
@@ -131,16 +143,26 @@
     display: block;
   }
   .divider {
-  height: 2px;
-  width: 100%;
-  margin-top: .5rem;
+  height: 3px;
+  width: 60%;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+  margin-top: auto;
   margin-bottom: .5rem;
-  border-radius: 50%;
+  border-radius: 9999px;
   border-width: 1px;
   border-color: #35363C;
   background-color: #35363C;
 }
 .last-item {
-  margin-top: auto;
+  margin-top: 0.5rem;
+}
+.active-bar {
+  position: absolute;
+  left: 0;
+  width: 3px;
+  height: 3rem;
+  background-color: white;
+  transition: transform 0.15s ease-in-out;
 }
 </style>

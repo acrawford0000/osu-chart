@@ -27,6 +27,7 @@ onMount(async () => {
     <div class="add">
         <TextField/>
     </div>
+    <div>
         <PlayerList/>
         {#if showWarning}
             <WarningCard message="Warning: osu! API client was not successfully created on startup. Please check your API credentials in the settings." />
@@ -34,15 +35,19 @@ onMount(async () => {
         {#if showButton}
             <ClearAllButton/>
         {/if}
+    </div>
 </main>
 
 <style>
     .add {
         padding: 20px;
         margin: 10px 0;
+        flex-grow: 1;
+        justify-content: center;
     }
     main {
-        display: flex;
+
         justify-content: center;
+        flex-wrap: wrap;
     }
 </style>

@@ -1,10 +1,40 @@
 <script>
-  import { players, removePlayer } from "../store";
+  import { players, removePlayer, fetchPlayerStats, selectedMode } from "../store";
+  import { SetGameMode } from "../../wailsjs/go/app/App"
+  import { get } from "svelte/store";
+
   let allPlayers = [];
 
   players.subscribe((value) => {
     allPlayers = value;
   });
+
+  let modes = ["standard", "taiko", "mania", "catch"];
+
+  async function handleModeSelect(player, event) {
+  // Get the current selected mode from the store
+  let currentSelectedMode = get(selectedMode);
+
+  // Set the game mode in the backend to the selected mode
+  await SetGameMode(event.target.value);
+
+  // Clear the player's stats and update their selected mode
+  players.update((currentPlayers) =>
+    currentPlayers.map((p) => {
+      if (p.username === player.username) {
+        return { ...p, stats: null, selectedMode: event.target.value };
+      }
+      return p;
+    })
+  );
+
+  // Fetch stats for the selected player
+  await fetchPlayerStats();
+
+  // Set the game mode in the backend back to its original value
+  await SetGameMode(currentSelectedMode);
+}
+
 </script>
 
 <div class="player-list">
@@ -36,6 +66,14 @@
             }
           }}>close</span
         >
+        <select on:change={(event) => handleModeSelect(player, event)}
+          class="mode-select"
+          value={player.selectedMode}
+          >
+          {#each modes as mode}
+            <option value={mode}>{mode}</option>
+          {/each}
+        </select>
       </div>
     </div>
   {/each}
@@ -108,5 +146,14 @@
     right: 10px;
     top: 10px;
     cursor: pointer;
+  }
+  select {
+    position: absolute;
+    bottom: 5%;
+    left: 2%;
+    background-color: transparent;
+  }
+  select option {
+    border: none;
   }
 </style>

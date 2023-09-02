@@ -1,7 +1,6 @@
 import { writable } from "svelte/store";
 import { get } from "svelte/store";
 import { GetUser, IsClientValid, GetStatsUpdates, SavePlayerData } from "../wailsjs/go/app/App";
-import * as d3 from "d3";
 
 // Set up various stores
 export const selectedMode = writable('standard');
@@ -11,7 +10,7 @@ export const clientValid = writable(false);
 export const selectedStat = writable('count_rank_ss');
 export const clientId = writable('');
 export const clientSecret = writable('');
-let errorMessage = '';
+export const warningMessage = writable('');
 
 // Set up the player store and all functions that go with it
 export const players = writable([]);
@@ -25,9 +24,12 @@ export async function addPlayer(username) {
   const user = await GetUser(username);
 
   // Add the user object to the store
-  players.update(currentPlayers => [...currentPlayers, user]);
+  players.update(currentPlayers => [...currentPlayers, { ...user, selectedMode: get(selectedMode)}]);
+
+  // Fetch stats for added player
+  await fetchPlayerStats();
   } catch (error) {
-    alert("An error occurred while getting user data: " + error.message);
+    warningMessage.set("An error occurred while getting user data: " + error.message);
   }
 }
 

@@ -1,8 +1,20 @@
 <script>
+    import { onDestroy } from "svelte";
+    import { warningMessage } from "../store";
     export let message = '';
     let showMessage = true;
     const hideMessage = () => {
         showMessage = false;
+        warningMessage.set('');
+    }
+
+    onDestroy(() => {
+        warningMessage.set('');
+    })
+
+    $: if (message) {
+        console.log('New message: ', message);
+        showMessage = true;
     }
 </script>
 
