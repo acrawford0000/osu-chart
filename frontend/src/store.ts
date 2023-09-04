@@ -11,18 +11,24 @@ export const selectedStat = writable('count_rank_ss');
 export const clientId = writable('');
 export const clientSecret = writable('');
 export const warningMessage = writable('');
+export const isLoading = writable(false);
+export const loadingCount = writable(0);
 
 // Set up the player store and all functions that go with it
 export const players = writable([]);
 
 export async function addPlayer(username) {
+  // Increment loadingCount and set isLoading to true
+  loadingCount.update(n => n + 1);
+  isLoading.set(true);
+
   // Check if there are any players without data, if so, update them. This is an extra precaution.
   await updatePlayerData();
   
   // Call the GetUser function from your backend to get the user object for the given username
   try {
   const user = await GetUser(username);
-
+  
   // Add the user object to the store
   players.update(currentPlayers => [...currentPlayers, { ...user, selectedMode: get(selectedMode)}]);
 
@@ -81,6 +87,13 @@ export async function fetchPlayerStats() {
       }
     }
   }
+  // Decrement loadingCount and if 0, set isLoading to false
+  loadingCount.update(n => n - 1);
+  loadingCount.subscribe(value => {
+    if (value === 0) {
+      isLoading.set(false);
+    }
+  });
 }
 
 export function removePlayer(username) {

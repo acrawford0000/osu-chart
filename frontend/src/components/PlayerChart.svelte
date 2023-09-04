@@ -4,10 +4,10 @@
     import { get } from 'svelte/store';
     import * as echarts from 'echarts/core';
     import { LineChart } from 'echarts/charts';
-    import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+    import { GridComponent, TooltipComponent, LegendComponent, DataZoomInsideComponent } from 'echarts/components';
     import { CanvasRenderer } from 'echarts/renderers';
   
-    echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+    echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer, DataZoomInsideComponent]);
   
     let chartDom;
     let chart;
@@ -33,6 +33,12 @@
             smooth:true,
             sampling: 'lttb',
             data: player.stats.map((stat) => [stat.timestamp, stat[currentStat]]),
+            emphasis: {
+              focus: 'series',
+              itemStyle: {
+                borderWidth: 10,
+              },
+            },
       }));
   
       chart.setOption({ series });
@@ -46,6 +52,7 @@
           trigger: 'axis',
           axispointer: {
             snap: true,
+            type: 'cross',
           },
         },
         legend: {
@@ -80,8 +87,21 @@
             },
           },
         },
+        dataZoom: [
+          {
+            type: 'inside',
+            xAxisIndex: [0],
+            start: 0,
+            end: 100,
+          },
+        ],
       });
   
+      // add event listener for window resize
+      window.addEventListener('resize', () => {
+        chart.resize();
+      });
+
       unsubscribe = players.subscribe(updateChartData);
     });
   
@@ -95,5 +115,5 @@
     }
       </script>
   
-  <div class="dark-mode" bind:this={chartDom} style="width: 70vw; height: 500px;"></div>
+  <div class="dark-mode" bind:this={chartDom} style="width: 100%; height: 600px;"></div>
   
