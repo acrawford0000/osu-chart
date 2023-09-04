@@ -1,7 +1,6 @@
 <script>
     import { writable } from 'svelte/store';
     import ClientTextfields from "../components/ClientTextfields.svelte";
-    import GameMode from "../components/GameMode.svelte";
     import StatSelector from '../components/StatSelector.svelte';
     import Instructions, { Label } from "@smui/button";
 
@@ -14,12 +13,12 @@
 </script>
 
 <main>
-    <div style="display: flex; justify-content: center;">
-            <div class="section">
+    <div style="display: flex; justify-content: space-evenly;">
+            <div class="section" style="width: 20%;">
                 <h2 class="section-title">Client Credentials</h2>
                 <ClientTextfields/>
             </div>
-            <div class="section">
+            <div class="section" style="width: 50%;">
                 <div>
                     <Instructions
                         on:click={toggleInstructions}
@@ -41,25 +40,22 @@
                     </div>
                     {/if}
                 </div>
-            <div class="section">
-                <h2 class="section-title">Game Mode</h2>
-                <GameMode/>
-            </div>
-            <div class="section">
-                <h2 class="section-title">Stats</h2>
-                <StatSelector/>
-            </div>
             </div>
         </div>
+<!--         <div class="section">
+            <h2 class="section-title">Stats</h2>
+            <StatSelector/>
+        </div> -->
 </main>
 
 <style>
     .section {
         background-color: #1e1f22;
         padding: 3rem;
-        margin: 10px 0;
+        margin: 10px;
+        height: 300px;
         border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
     
     .section-title {

@@ -2,6 +2,7 @@
     import { model } from "../../wailsjs/go/models"
     import { selectedStat } from '../store';
     import { onMount } from 'svelte';
+    
 
     let stats = [];
 
@@ -33,22 +34,16 @@
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 10px;
-    }
-    
-    /* Dark mode styling */
-    body {
-        background-color: #121212;
-        color: #fff;
-    }
-    
-    select {
         background-color: #424242;
         color: #fff;
         border: none;
         padding: 8px 16px;
         border-radius: 4px;
     }
-    
+    select {
+        background-color: transparent;
+        border: none;
+    }
     option {
         background-color: #424242;
         color: #fff;

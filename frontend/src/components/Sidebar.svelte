@@ -1,6 +1,26 @@
 <script>
-  import { Router, Route, navigate } from 'svelte-routing';
+  import { Router, navigate } from 'svelte-routing';
   import { Icon } from '@smui/common';
+  import { SetGameMode } from '../../wailsjs/go/app/App';
+  import { selectedMode } from '../store';
+  import modeOsu from '../assets/images/mode-osu.png';
+  import modeTaiko from '../assets/images/mode-taiko.png';
+  import modeMania from '../assets/images/mode-mania.png';
+  import modeFruits from '../assets/images/mode-fruits.png';
+
+
+  let modes = [
+    {name: 'standard', image: modeOsu},
+    {name: 'taiko', image: modeTaiko},
+    {name: 'mania', image: modeMania},
+    {name: 'catch', image: modeFruits}
+  ]
+
+  function handleSelect(mode) {
+    // Update the store with the new selected game mode
+    selectedMode.set(mode);
+    SetGameMode(mode);
+  }
 
   let links = [
     {
@@ -78,8 +98,21 @@
         </div>
       {/if}
     {/each}
+    <div class="divider" style="margin-top: 0.5rem;"></div>
+    {#each modes as mode}
+      <div class="mode-item">
+        <img class="mode-icon" tabindex="0" class:selected={$selectedMode === mode.name} style="justify-self: center; align-self:center;" src={mode.image} alt={mode.name} on:click={() => handleSelect(mode.name)} />
+        <span class="sidebar-tooltip">{mode.name}</span>
+      </div>
+    {/each}
   </Router>
 </div> 
+<!-- {#each modes as mode}
+<div>
+  <img class="mode-icon" src={mode.image} alt={mode.name} on:click={() => handleSelect(mode.name)} />
+  <span class="sidebar-tooltip">{mode.name}</span>
+</div>
+{/each} -->
 
 <style>
   .sidebar{
@@ -164,5 +197,44 @@
   height: 3rem;
   background-color: white;
   transition: transform 0.15s ease-in-out;
+}
+.mode-item {
+    display: flex;
+    padding-left: 0.5rem;
+    justify-content: center;
+  }
+  .mode-item:hover .sidebar-tooltip {
+    display: block;
+  }
+.mode-icon {
+  display: flex;
+  position: relative;
+  margin-top: .5rem;
+  margin-bottom: .5rem;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  width: 3rem;
+  border-radius: 2rem;
+  margin-left: auto;
+  margin-right: auto;
+  font-size:1.5rem;
+  margin-right:.5rem;
+  background-color: #313338;
+  color: #7289da;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px -1px rgba(0,0,0,0.1),0px 2px 4px -1px rgba(0,0,0,0.06);
+  transition-property: all;
+  transition-duration: .15s;
+  transition-timing-function: linear;
+}
+.mode-icon.selected {
+  background-color: #f062a1;
+  border-radius: .75rem;
+}
+.mode-icon:hover {
+  background-color: #f062a1;
+  color: #FFFFFF;
+  border-radius: .75rem;
 }
 </style>

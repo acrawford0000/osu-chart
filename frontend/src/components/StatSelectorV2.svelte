@@ -1,5 +1,6 @@
 <script>
     import Select, { Option } from '@smui/select';
+    import FormField from '@smui/form-field'
     import { model } from "../../wailsjs/go/models"
     import { selectedStat } from '../store';
     import { onMount } from 'svelte';
@@ -21,14 +22,16 @@
 </script>
 
 <div class="select">
-    <Select 
-    bind:value={$selectedStat} 
-    label="Select Stat" 
-    on:change={handleSelect}>
-        {#each stats as stat}
-            <Option value={stat}>{stat}</Option>
-        {/each}
-    </Select>
+    <FormField>
+        <Select 
+        bind:value={$selectedStat} 
+        label="Select Stat" 
+        on:change={handleSelect}>
+            {#each stats as stat}
+                <Option value={stat}>{stat}</Option>
+            {/each}
+        </Select>
+    </FormField>
 </div>
 
 <style>

@@ -1,10 +1,11 @@
 <script>
     import Chart from "../components/PlayerChart3.svelte"
-    import StatSelector from "../components/StatSelectorV2.svelte";
+    import StatSelector from "../components/StatSelectorV3.svelte";
 </script>
 
 <main class="main">
     <Chart/>
+    <StatSelector/>
 </main>
 
 <style>

@@ -151,9 +151,11 @@
     position: absolute;
     bottom: 5%;
     left: 2%;
+    border: none;
     background-color: transparent;
   }
   select option {
     border: none;
+    background-color: transparent;
   }
 </style>
