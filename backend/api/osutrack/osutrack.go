@@ -9,6 +9,15 @@ import (
 )
 
 func GetStatsUpdates(user int, mode int) ([]*model.UserStats, error) {
+	// Create the URL for the Update User API endpoint
+	updateURL := fmt.Sprintf("https://osutrack-api.ameo.dev/update?user=%d&mode=%d", user, mode)
+
+	// Make the HTTP POST request to trigger an update on the server side
+	_, err := http.Post(updateURL, "application/json", nil)
+	if err != nil {
+		return nil, err
+	}
+
 	// Create the URL for the API endpoint
 	url := fmt.Sprintf("https://osutrack-api.ameo.dev/stats_history?user=%d&mode=%d", user, mode)
 
