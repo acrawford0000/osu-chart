@@ -1,7 +1,6 @@
 <script>
     import TextField from "@smui/textfield";
     import SaveButton, { Label } from "@smui/button"
-    import IconButton from "@smui/icon-button";
     import Icon from "@smui/textfield/icon";
     import { SaveOsuAuthCredentials } from "../../wailsjs/go/app/App"
     import { credentialsSet, clientValid, clientId, clientSecret } from '../store';

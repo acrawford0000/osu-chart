@@ -42,10 +42,10 @@
                 </div>
             </div>
         </div>
-<!--         <div class="section">
+        <div class="section">
             <h2 class="section-title">Stats</h2>
             <StatSelector/>
-        </div> -->
+        </div>
 </main>
 
 <style>

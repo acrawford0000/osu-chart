@@ -2,7 +2,7 @@
     import TextField from "@smui/textfield";
     import Icon from '@smui/textfield/icon';
     import AddButton, { Label } from "@smui/button";
-    import { username, addPlayer, fetchPlayerStats, clientValid, credentialsSet, players, savePlayerData, warningMessage } from "../store";
+    import { username, addPlayer, clientValid, credentialsSet, players, savePlayerData, warningMessage } from "../store";
     import { IsClientValid, AreOsuAuthCredentialsSet } from "../../wailsjs/go/app/App";
     import { get } from 'svelte/store';
 
@@ -42,7 +42,7 @@
 
 /*     function savePlayersToFile() {
         const data = JSON.stringify(players, null, 2);
-    } */
+    }
 
     // Function to send player data to the backend
     async function savePlayersToFile() {
@@ -63,7 +63,7 @@
     } catch (error) {
         console.error('Error sending player data to the backend:', error);
     }
-    }
+    } */
 
 </script>
 
@@ -89,23 +89,6 @@
         <Label>Add Player</Label>
     </AddButton>
 </div>
-
-<!-- <GetStatsButton
-    on:click={fetchPlayerStats}
-    color="secondary"
-    touch variant="unelevated"
-    style="width: 40%"
-    >
-    <Label>Get Stats</Label>
-</GetStatsButton> -->
-
-<!-- <Save
-    on:click={savePlayersToFile}
-    touch variant="unelevated"
-    style="width: 50%"
-    >
-    <Label>savePlayersToFile</Label>
-</Save> -->
 
 <style>
     .AddPlayer {
