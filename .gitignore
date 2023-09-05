@@ -5,3 +5,4 @@ config.json
 user.json
 userstats.json
 player.json
+osu_auth_credentials.json
