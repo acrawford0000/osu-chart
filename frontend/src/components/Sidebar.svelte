@@ -101,18 +101,27 @@
     <div class="divider" style="margin-top: 0.5rem;"></div>
     {#each modes as mode}
       <div class="mode-item">
-        <img class="mode-icon" tabindex="0" class:selected={$selectedMode === mode.name} style="justify-self: center; align-self:center;" src={mode.image} alt={mode.name} on:click={() => handleSelect(mode.name)} />
+        <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+        <img 
+          class="mode-icon" 
+          tabindex="0" 
+          class:selected={$selectedMode === mode.name} 
+          style="justify-self: center; align-self:center;" 
+          src={mode.image} 
+          alt={mode.name} 
+          on:click={() => handleSelect(mode.name)}
+          on:keydown={(event) => {
+            if (event.key === 'Enter') {
+              handleSelect(mode.name);
+            }
+          }} 
+          />
         <span class="sidebar-tooltip">{mode.name}</span>
       </div>
     {/each}
   </Router>
 </div> 
-<!-- {#each modes as mode}
-<div>
-  <img class="mode-icon" src={mode.image} alt={mode.name} on:click={() => handleSelect(mode.name)} />
-  <span class="sidebar-tooltip">{mode.name}</span>
-</div>
-{/each} -->
+
 
 <style>
   .sidebar{

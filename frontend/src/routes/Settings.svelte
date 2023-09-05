@@ -1,14 +1,19 @@
 <script>
     import { writable } from 'svelte/store';
     import ClientTextfields from "../components/ClientTextfields.svelte";
-    import StatSelector from '../components/StatSelector.svelte';
     import Instructions, { Label } from "@smui/button";
+    import { BrowserOpenURL } from "../../wailsjs/runtime"
 
     const clientId = writable('');
     const clientSecret = writable('');
     let showInstructions = false;
     function toggleInstructions() {
         showInstructions = !showInstructions;
+    }
+
+    function openExternalLink (event) {
+        event.preventDefault();
+        BrowserOpenURL(event.target.href);
     }
 </script>
 
@@ -31,7 +36,7 @@
                     <div>
                         <ol>
                         <li>Make sure you are signed into the osu! site.</li>
-                        <li>Click this link: <a href="https://osu.ppy.sh/home/account/edit#new-oauth-application">https://osu.ppy.sh/home/account/edit#new-oauth-application</a>.</li>
+                        <li>Click this link: <a href="https://osu.ppy.sh/home/account/edit#new-oauth-application" on:click|preventDefault={openExternalLink}>https://osu.ppy.sh/home/account/edit#new-oauth-application</a>.</li>
                         <li>Click on "New OAuth Application".</li>
                         <li>Enter "osu!-chart" as the name and leave the "Application Callback URLs" field blank.</li>
                         <li>Click "Register Application".</li>
@@ -41,10 +46,6 @@
                     {/if}
                 </div>
             </div>
-        </div>
-        <div class="section">
-            <h2 class="section-title">Stats</h2>
-            <StatSelector/>
         </div>
 </main>
 

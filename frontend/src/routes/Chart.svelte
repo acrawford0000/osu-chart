@@ -1,15 +1,19 @@
 <script>
     import LineChart from "../components/PlayerChart.svelte"
-    import StatSelector from "../components/StatSelector.svelte";
+    import StatSelector from "../components/StatSelectorV2.svelte";
     import { isLoading } from "../store";
     import CircularProgress from "@smui/circular-progress"
+    import LoadingScreen from "../components/LoadingScreen.svelte";
 
 </script>
 
 <main class="main">
     {#if $isLoading}
         <div class="loading-container">
-            <CircularProgress style="height: 32px; width: 32px;" indeterminate />
+            <LoadingScreen/>
+            <div class="progress-container">
+                <CircularProgress style="height: 64px; width: 64px;" indeterminate />
+            </div>
         </div>
     {:else}
         <LineChart/>
@@ -26,24 +30,14 @@
     .loading-container {
         display: flex;
         justify-content: center;
-        position: fixed;
+        align-items: center;
+        position: relative;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
     }
-    .loading-container::before {
-        content: "";
+    .progress-container {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: linear-gradient(to bottom right, transparent, #FFC0CB);
-        animation: wipe 2s linear infinite;
-    }
-    @keyframes wipe {
-        from { transform: translateX(-100%); }
-        to { transform: translateX(100%); }
     }
 </style>

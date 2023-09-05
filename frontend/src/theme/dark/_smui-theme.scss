@@ -11,6 +11,11 @@
   $error: color-palette.$red-700
 );
 
+body {
+  margin: 0;
+  padding: 0;
+}
+
 html,
 body {
   background-color: #2c2f33;

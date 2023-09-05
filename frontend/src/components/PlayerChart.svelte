@@ -30,7 +30,7 @@
         const series = value.map((player, index) => ({
             name: player.username,
             type: 'line',
-            smooth:true,
+            smooth: true,
             sampling: 'lttb',
             data: player.stats.map((stat) => [stat.timestamp, stat[currentStat]]),
             emphasis: {

@@ -28,7 +28,7 @@ export async function addPlayer(username) {
   // Call the GetUser function from your backend to get the user object for the given username
   try {
   const user = await GetUser(username);
-  
+
   // Add the user object to the store
   players.update(currentPlayers => [...currentPlayers, { ...user, selectedMode: get(selectedMode)}]);
 
@@ -36,6 +36,14 @@ export async function addPlayer(username) {
   await fetchPlayerStats();
   } catch (error) {
     warningMessage.set("An error occurred while getting user data: " + error.message);
+
+    // Decrement loadingCount and if 0, set isLoading to false
+    loadingCount.update(n => n - 1);
+    loadingCount.subscribe(value => {
+      if (value === 0) {
+        isLoading.set(false);
+      }
+    });
   }
 }
 

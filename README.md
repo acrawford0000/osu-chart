@@ -1,8 +1,15 @@
 # README
 
 ## About
+osu-chart is an application that allows you to input the usernames of osu! players and view their stats over time from the osutrack API. The main use is comparing different players’ stats against each other. You can choose from various metrics such as pp, rank, accuracy, playcount, and more. 
 
-This is the official non-official project of me.
+I mainly made this because when I made YouTube videos, the charts on https://ameobea.me/osutrack/ were only available in light mode. Soon you will be able to customize the chart appearance, such as the color scheme, and the time range.
+
+- Compare multiple players on the same chart
+- Choose from different game modes and metrics
+- Dark mode
+- Responsive design
+- Queue osu!track update when a player is entered
 
 ## Live Development
 
@@ -11,19 +18,12 @@ server that will provide very fast hot reload of your frontend changes. If you w
 and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
 to this in your browser, and you can call your Go code from devtools.
 
+This project was made with Svelte
 ## Building
 
 To build a redistributable, production mode package, use `wails build`.
 
 ## TODO
-
-Link in the settings to get api information, maybe even a dropdown with a guide so people are not confused
-Chart data 
-Chart zooming and panning
-Value lines for the chart
-PlayerList adds from right to left, bottom to top
-If gamemode is changed and stats already exist, prompt user "are you sure" and then rerun getstats with new gamemode
-Different themes (was using a ui library a good idea?)
-Customization of chart theme?
-Clean up some backend and work on sending errors to the front
-Warning card can only be called once???
+- Customize the chart appearance and settings
+- Fix chart zoom and pan
+- Different themes (was using a ui library a good idea?)
