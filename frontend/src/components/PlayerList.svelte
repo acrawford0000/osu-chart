@@ -152,7 +152,7 @@
     bottom: 5%;
     left: 2%;
     border: none;
-    background-color: transparent;
+    background-color: white;
   }
   select option {
     border: none;
