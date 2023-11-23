@@ -43,6 +43,7 @@
     }
     
     .parallax::before {
+        will-change: transform;
         content: "";
         position: absolute;
         top: 0;
@@ -57,6 +58,7 @@
     }
     
     .contact-card {
+        will-change: transform;
         position: absolute;
         top: 50%;
         left: 50%;

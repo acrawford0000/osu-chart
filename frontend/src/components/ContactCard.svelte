@@ -4,11 +4,17 @@
     
     let youtubeUrl = 'https://www.youtube.com/@ACrawford00';
     let githubUrl = 'https://github.com/acrawford0000';
-    
+    let discordUsername = 'acrawford69';
+
     function openExternalLink(event: MouseEvent) {
         event.preventDefault();
         BrowserOpenURL((event.target as HTMLAnchorElement).href);
-        }
+    }
+
+    function copyToClipboard(event: MouseEvent) {
+        event.preventDefault();
+        navigator.clipboard.writeText(discordUsername);
+    }
 </script>
     
 <div class="card">
@@ -24,6 +30,10 @@
     
     <a href={githubUrl} on:click|preventDefault={openExternalLink} title="Visit my GitHub profile">
     <i class="fab fa-github"></i>
+    </a>
+
+    <a href="#" on:click|preventDefault={copyToClipboard} title={discordUsername}>
+    <i class="fab fa-discord"></i>
     </a>
 </div>
 </div>
