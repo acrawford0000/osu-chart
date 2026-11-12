@@ -4,220 +4,244 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
 	"os"
+	"path/filepath"
+	"project/backend/api/apierror"
 	"project/backend/api/client"
 	"project/backend/api/client/opts"
 	"project/backend/api/enum"
 	"project/backend/api/model"
 	"project/backend/api/osutrack"
 	"strconv"
+	"strings"
+	"sync"
 )
 
-// App struct
+type userClient interface {
+	GetUser(opts.GetUserOpts) (*model.User, error)
+}
+
 type App struct {
-	ctx context.Context
+	ctx           context.Context
+	mu            sync.RWMutex
+	credentialsMu sync.Mutex
+	client        userClient
+	// Explicit paths and factories allow isolated tests without real keys or APIs.
+	credentialsPath string
+	legacyPath      string
+	newClient       func(int, string) (userClient, error)
+	loadHistory     func(int, int) ([]*model.UserStats, error)
 }
 
-// NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
-}
-
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
-func (a *App) Startup(ctx context.Context) {
-	a.ctx = ctx
-	// NewClientOnStartup()
-}
-
-// osu!api v2 setup and functions
-var Client *client.OsuClient
-
-func CreateNewClient() error {
-	client, err := client.NewClient(getOsuAuthCredentials())
-	if err != nil {
-		return errors.New("failed to create a new client. Please verify your credentials are correct")
+	return &App{
+		legacyPath:  "osu_auth_credentials.json",
+		newClient:   func(id int, secret string) (userClient, error) { return client.NewClient(id, secret) },
+		loadHistory: osutrack.GetStatsUpdates,
 	}
-	Client = client
-	log.Printf("Client set: %v", Client)
-	return nil
 }
-
-func (a *App) CreateNewClient() error {
-	client, err := client.NewClient(getOsuAuthCredentials())
-	if err != nil {
-		return errors.New("failed to create a new client. Please verify your credentials are correct")
-
-	}
-	Client = client
-	log.Printf("Client set: %v", Client)
-	return nil
-}
-
-// IsClientValid checks if the osu! API client was successfully created
-func (a *App) IsClientValid() bool {
-	return Client != nil
-}
+func (a *App) Startup(ctx context.Context) { a.ctx = ctx }
 
 type osuAuthCredentials struct {
 	ClientID     string `json:"client_id"`
 	ClientSecret string `json:"client_secret"`
 }
 
-const osuAuthCredentialsFile = "osu_auth_credentials.json"
-
-// Display whether or not client ID and Secret exist
-func (a *App) AreOsuAuthCredentialsSet() bool {
-	id, secret := getOsuAuthCredentials()
-	if id != 0 && secret != "" {
-		return true
+func (a *App) configPath() (string, error) {
+	if a.credentialsPath != "" {
+		return a.credentialsPath, nil
 	}
-	return false
+	configDir, err := os.UserConfigDir()
+	if err != nil {
+		return "", apierror.New("CONFIG_ERROR", "Could not locate the application settings folder.")
+	}
+	return filepath.Join(configDir, "osu-chart", "osu_auth_credentials.json"), nil
 }
 
-func (a *App) GetCredentials() (osuAuthCredentials, error) {
-	jsonData, err := os.ReadFile(osuAuthCredentialsFile)
+func validateCredentials(data osuAuthCredentials) (int, error) {
+	id, err := strconv.Atoi(strings.TrimSpace(data.ClientID))
+	if err != nil || id <= 0 || strings.TrimSpace(data.ClientSecret) == "" {
+		return 0, apierror.New("AUTH_INVALID", "Enter a positive numeric Client ID and a non-empty Client Secret.")
+	}
+	return id, nil
+}
+
+// Caller holds credentialsMu. Migrate the existing file without deleting the user's copy.
+func (a *App) readCredentials() (osuAuthCredentials, error) {
+	path, err := a.configPath()
 	if err != nil {
-		log.Printf("Failed to read osu auth credentials file: %v", err)
 		return osuAuthCredentials{}, err
 	}
-	var data osuAuthCredentials
-	err = json.Unmarshal(jsonData, &data)
+	raw, err := os.ReadFile(path)
+	migrate := false
+	if errors.Is(err, os.ErrNotExist) && a.legacyPath != "" {
+		raw, err = os.ReadFile(a.legacyPath)
+		migrate = err == nil
+	}
+	if errors.Is(err, os.ErrNotExist) {
+		return osuAuthCredentials{}, nil
+	}
 	if err != nil {
-		log.Printf("Failed to unmarshal osu auth credentials: %v", err)
-		return osuAuthCredentials{}, err
+		return osuAuthCredentials{}, apierror.New("CONFIG_ERROR", "Could not read your saved credentials. Check access to the application settings folder.")
+	}
+	var data osuAuthCredentials
+	if json.Unmarshal(raw, &data) != nil {
+		return data, apierror.New("CONFIG_ERROR", "The saved credentials file is not valid JSON. Save your credentials again in Settings.")
+	}
+	if _, err := validateCredentials(data); err != nil {
+		return data, err
+	}
+	if migrate {
+		if err := writeCredentials(path, data); err != nil {
+			return data, err
+		}
 	}
 	return data, nil
 }
 
-func (a *App) SaveOsuAuthCredentials(id string, secret string) error {
-	data := osuAuthCredentials{
-		ClientID:     id,
-		ClientSecret: secret,
+// Write a temporary sibling then rename it; a failed validation/write leaves the old file intact.
+func writeCredentials(path string, data osuAuthCredentials) error {
+	fail := func() error {
+		return apierror.New("CONFIG_ERROR", "Could not save your credentials. Your previous settings have been kept.")
 	}
-	jsonData, err := json.Marshal(data)
+	if os.MkdirAll(filepath.Dir(path), 0700) != nil {
+		return fail()
+	}
+	raw, err := json.Marshal(data)
 	if err != nil {
-		return err
+		return fail()
 	}
-	err = os.WriteFile(osuAuthCredentialsFile, jsonData, 0644)
+	file, err := os.CreateTemp(filepath.Dir(path), ".credentials-*")
 	if err != nil {
-		return err
+		return fail()
 	}
-
-	// Create a new client with the saved credentials
-	err = CreateNewClient()
-	if err != nil {
-		// Return an error if the client could not be created
-		return errors.New("failed to create a new client with the saved credentials: %w")
+	defer os.Remove(file.Name())
+	if err = file.Chmod(0600); err == nil {
+		_, err = file.Write(raw)
 	}
-
+	if err == nil {
+		err = file.Sync()
+	}
+	closeErr := file.Close()
+	if err != nil || closeErr != nil {
+		return fail()
+	}
+	if os.Rename(file.Name(), path) != nil {
+		return fail()
+	}
 	return nil
 }
 
-func getOsuAuthCredentials() (int, string) {
-	jsonData, err := os.ReadFile(osuAuthCredentialsFile)
+func (a *App) GetCredentials() (osuAuthCredentials, error) {
+	a.credentialsMu.Lock()
+	defer a.credentialsMu.Unlock()
+	return a.readCredentials()
+}
+func (a *App) AreOsuAuthCredentialsSet() bool {
+	data, err := a.GetCredentials()
 	if err != nil {
-		log.Printf("Failed to read osu auth credentials file: %v", err)
-		return 0, ""
+		return false
 	}
-	var data osuAuthCredentials
-	err = json.Unmarshal(jsonData, &data)
+	_, err = validateCredentials(data)
+	return err == nil
+}
+func (a *App) IsClientValid() bool {
+	a.mu.RLock()
+	defer a.mu.RUnlock()
+	return a.client != nil
+}
+func (a *App) CreateNewClient() error {
+	a.credentialsMu.Lock()
+	defer a.credentialsMu.Unlock()
+	data, err := a.readCredentials()
 	if err != nil {
-		log.Printf("Failed to unmarshal osu auth credentials: %v", err)
-		return 0, ""
+		return err
 	}
-	clientID, err := strconv.Atoi(data.ClientID)
+	id, err := validateCredentials(data)
 	if err != nil {
-		log.Printf("Failed to convert client ID to int: %v", err)
-		return 0, ""
+		return err
 	}
-	return clientID, data.ClientSecret
+	candidate, err := a.newClient(id, data.ClientSecret)
+	if err != nil {
+		return err
+	}
+	a.mu.Lock()
+	a.client = candidate
+	a.mu.Unlock()
+	return nil
+}
+func (a *App) SaveOsuAuthCredentials(id, secret string) error {
+	a.credentialsMu.Lock()
+	defer a.credentialsMu.Unlock()
+	data := osuAuthCredentials{ClientID: strings.TrimSpace(id), ClientSecret: strings.TrimSpace(secret)}
+	numericID, err := validateCredentials(data)
+	if err != nil {
+		return err
+	}
+	candidate, err := a.newClient(numericID, data.ClientSecret)
+	if err != nil {
+		return err
+	}
+	path, err := a.configPath()
+	if err != nil {
+		return err
+	}
+	if err = writeCredentials(path, data); err != nil {
+		return err
+	}
+	a.mu.Lock()
+	a.client = candidate
+	a.mu.Unlock()
+	return nil
 }
 
-var userData *model.User
-
-// Main function to get user profile details and return them to the frontend
-func (a *App) GetUser(username string) (user *model.MyUserStruct, err error) {
-
-	key := enum.UserKeyUsername
-	opts := opts.GetUserOpts{
-		Username: username,
-		Mode:     &gameMode,
-		Key:      &key,
-	}
-
-	userData, err = Client.GetUser(opts)
-	if err != nil {
-		return nil, err
-	}
-
-	user = client.GetMyUserData(userData)
-
-	userJSON, err := json.Marshal(user)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = os.WriteFile("user.json", userJSON, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return user, err
-}
-
-// Set default Game Mode and then function to set it
-var gameMode enum.GameMode = enum.GameModeStandard
-
-func (a *App) SetGameMode(mode string) {
-
+func parseMode(mode string) (enum.GameMode, int, error) {
 	switch mode {
 	case "standard":
-		gameMode = enum.GameModeStandard
-		trackmode = 0
-	case "mania":
-		gameMode = enum.GameModeMania
-		trackmode = 3
+		return enum.GameModeStandard, 0, nil
 	case "taiko":
-		gameMode = enum.GameModeTaiko
-		trackmode = 1
+		return enum.GameModeTaiko, 1, nil
 	case "catch":
-		gameMode = enum.GameModeCtb
-		trackmode = 2
-
+		return enum.GameModeCtb, 2, nil
+	case "mania":
+		return enum.GameModeMania, 3, nil
+	default:
+		return "", 0, apierror.New("INVALID_MODE", "Choose a supported game mode.")
 	}
 }
 
-// osutrack setup and functions
-var trackmode int = 0
-
-func (a *App) GetStatsUpdates(id int) (stats []*model.UserStats, err error) {
-	statsUpdates, err := osutrack.GetStatsUpdates(id, trackmode)
+func (a *App) GetUser(username, mode string) (*model.MyUserStruct, error) {
+	gameMode, _, err := parseMode(mode)
 	if err != nil {
-		log.Print("Failed to get user stats.", err)
 		return nil, err
 	}
-
-	userstatsJSON, err := json.Marshal(statsUpdates)
-	if err != nil {
-		log.Fatal(err)
+	username = strings.TrimSpace(username)
+	if username == "" {
+		return nil, apierror.New("INVALID_USERNAME", "Enter an osu! username first.")
 	}
-
-	err = os.WriteFile("userstats.json", userstatsJSON, 0644)
-	if err != nil {
-		log.Fatal(err)
+	a.mu.RLock()
+	currentClient := a.client
+	a.mu.RUnlock()
+	if currentClient == nil {
+		return nil, apierror.New("AUTH_REQUIRED", "Set and verify your API credentials in Settings before adding players.")
 	}
-
-	return statsUpdates, err
-
+	key := enum.UserKeyUsername
+	user, err := currentClient.GetUser(opts.GetUserOpts{Username: username, Mode: &gameMode, Key: &key})
+	if err != nil {
+		return nil, err
+	}
+	if user == nil || user.ID == 0 {
+		return nil, apierror.New("NOT_FOUND", "No matching osu! player was found.")
+	}
+	return client.GetMyUserData(user), nil
 }
-
-func (a *App) SavePlayerData(playerData string) error {
-	// Write player data to a file
-	err := os.WriteFile("players.json", []byte(playerData), 0644)
+func (a *App) GetStatsUpdates(id int, mode string) ([]*model.UserStats, error) {
+	_, trackMode, err := parseMode(mode)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	if id <= 0 {
+		return nil, apierror.New("INVALID_PLAYER", "This player does not have a valid osu! ID.")
+	}
+	return a.loadHistory(id, trackMode)
 }

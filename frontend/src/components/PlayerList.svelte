@@ -1,161 +1,46 @@
 <script>
-  import { players, removePlayer, fetchPlayerStats, selectedMode } from "../store";
-  import { SetGameMode } from "../../wailsjs/go/app/App"
-  import { get } from "svelte/store";
-
-  let allPlayers = [];
-
-  players.subscribe((value) => {
-    allPlayers = value;
-  });
-
-  let modes = ["standard", "taiko", "mania", "catch"];
-
-  async function handleModeSelect(player, event) {
-  // Get the current selected mode from the store
-  let currentSelectedMode = get(selectedMode);
-
-  // Set the game mode in the backend to the selected mode
-  await SetGameMode(event.target.value);
-
-  // Clear the player's stats and update their selected mode
-  players.update((currentPlayers) =>
-    currentPlayers.map((p) => {
-      if (p.username === player.username) {
-        return { ...p, stats: null, selectedMode: event.target.value };
-      }
-      return p;
-    })
-  );
-
-  // Fetch stats for the selected player
-  await fetchPlayerStats();
-
-  // Set the game mode in the backend back to its original value
-  await SetGameMode(currentSelectedMode);
-}
-
+  import { players, removePlayer, changePlayerMode, retryPlayer } from '../store';
+  import { GAME_MODES } from '../lib/metrics';
+  import AppIcon from './AppIcon.svelte';
 </script>
-
 <div class="player-list">
-  {#each allPlayers as player}
-    <div
-      class="player-card"
-      style="background-image:url({player.cover_url}); background-size:cover; background-position:center;"
-    >
-      <div class="player-card-overlay"></div>
-      <div class="player-card-content">
-        <img class="player-avatar" src={player.avatar_url} alt="Avatar" />
-        <div class="player-info">
-          <div class="player-username">{player.username}</div>
-          <div class="player-country">        
-            <img class="player-flag" src= {`https://s.ppy.sh/images/flags/${player.country.code.toLowerCase()}.gif`}
-            alt={player.country.name}/>
-            {player.country.name}
-          </div>
-          <!-- <div class="player-id">ID: {player.id}</div> -->
+  {#each $players as player (player.key)}
+    <article class="player-card panel">
+      <div class="player-cover" style:background-image={player.cover_url ? `url(${player.cover_url})` : 'none'}></div>
+      <button class="icon-button player-remove" aria-label={`Remove ${player.username}`} title="Remove player" on:click={() => removePlayer(player.key)}><AppIcon name="close" size={16}/></button>
+      <div class="player-body">
+        <div class="player-identity">
+          {#if player.avatar_url}<img class="player-avatar" src={player.avatar_url} alt=""/>{:else}<span class="avatar-placeholder">{player.username.slice(0,1).toUpperCase()}</span>{/if}
+          <div class="player-info"><h3>{player.username}</h3><span class="player-country">{player.country?.name || 'osu! player'}</span></div>
         </div>
-        <span
-          class="material-icons player-remove-button"
-          tabindex="0"
-          role="button"
-          on:click={() => removePlayer(player.username)}
-          on:keydown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              removePlayer(player.username);
-            }
-          }}>close</span
-        >
-        <select on:change={(event) => handleModeSelect(player, event)}
-          class="mode-select"
-          value={player.selectedMode}
-          >
-          {#each modes as mode}
-            <option value={mode}>{mode}</option>
-          {/each}
-        </select>
+        <div class="player-status" aria-live="polite">
+          {#if player.status === 'loading'}<span class="spinner"></span>Loading saved history…
+          {:else if player.status === 'empty'}No saved history for this mode.
+          {:else if player.status === 'error'}<span class="error-text" title={player.error?.message}>Could not load data.</span><button class="button-quiet" on:click={() => retryPlayer(player.key)}>Retry</button>
+          {:else}<span class="status-dot ready"></span>{(player.stats?.length || 0).toLocaleString()} saved snapshots{/if}
+        </div>
+        <label class="mode-label">Game mode<select aria-label={`Game mode for ${player.username}`} class="mode-select" value={player.selectedMode} on:change={event => changePlayerMode(player.key,event.currentTarget.value)}>{#each GAME_MODES as mode}<option value={mode.key}>{mode.label}</option>{/each}</select></label>
       </div>
-    </div>
+    </article>
   {/each}
 </div>
-
 <style>
-  .player-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .player-card {
-    width: 300px;
-    height: 150px;
-    margin: 10px;
-    border-radius: 10px;
-    position: relative;
-    overflow: hidden;
-  }
-  .player-card:hover {
-    box-shadow: 0 0 11px rgba(82, 80, 80, 0.7);
-  }
-  .player-card-overlay {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    z-index: 0;
-    background-color: rgba(0, 0, 0, 0.75);
-  }
-  .player-card-content {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-  }
-  .player-avatar {
-    width: 50px;
-    height: 50px;
-    margin-left: 10px;
-    border-radius: 50%;
-  }
-  .player-info {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 60%;
-    transform: translate(-50%, -50%);
-    align-content: center;
-    justify-content: center;
-  }
-  .player-username {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  .player-country {
-    font-size: 12px;
-  }
-  .player-flag {
-    width: 16px;
-    height: 11px;
-    margin-right: 2%;
-  }
-/*   .player-id {
-    font-size: 12px;
-  } */
-  .player-remove-button {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    cursor: pointer;
-  }
-  select {
-    position: absolute;
-    bottom: 5%;
-    left: 2%;
-    border: none;
-    background-color: white;
-  }
-  select option {
-    border: none;
-    background-color: transparent;
-  }
+  .player-list { display: grid; grid-template-columns: repeat(auto-fill,minmax(min(270px,100%),1fr)); gap: 18px; }
+  .player-card { position: relative; overflow: hidden; }
+  .player-cover { height: 72px; background-size: cover; background-position: center; background-color: #2a2543; opacity: .55; }
+  .player-cover::after { content: ''; position: absolute; inset: 0 0 auto; height: 73px; background: linear-gradient(0deg,var(--surface),#191b2540); }
+  .player-remove { position: absolute; top: 10px; right: 10px; background: #101116c9; color: #d4d4e5; }
+  .player-remove:hover { color: var(--danger); }
+  .player-body { position: relative; padding: 0 22px 22px; }
+  .player-identity { display: flex; align-items: center; gap: 12px; margin-top: -19px; }
+  .player-avatar,.avatar-placeholder { width: 54px; height: 54px; border-radius: 14px; border: 3px solid var(--surface); flex-shrink: 0; background: #302946; }
+  .avatar-placeholder { display: grid; place-items: center; color: var(--accent); font-size: 21px; }
+  .player-info { min-width: 0; padding-top: 12px; }
+  h3 { margin: 0 0 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .player-country { color: var(--muted); font-size: 11px; }
+  .player-status { min-height: 44px; display: flex; gap: 7px; align-items: center; color: var(--muted); font-size: 11px; }
+  .error-text { color: var(--danger); }
+  .player-status button { font-size: 11px; padding: 3px 7px; }
+  .mode-label { border-top: 1px solid var(--border); padding-top: 14px; font-size: 10px; color: var(--muted); font-weight: 500; }
+  .mode-select { min-height: 38px; padding: 8px 10px; font-size: 12px; margin-top: 7px; }
 </style>

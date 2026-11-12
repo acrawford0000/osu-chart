@@ -1,22 +1,14 @@
 <script>
-    import Select, { Option } from '@smui/select';
-    import { model } from "../../wailsjs/go/models";
-    import { selectedStat } from '../store';
-
-    let stats = [];
-    // Create an instance of the UserStats class
-    const userStats = new model.UserStats;
-    // Get the properties of the UserStats class
-    stats = Object.keys(userStats).filter(key => typeof userStats[key] !== 'function');
-
-    let selectedValue = $selectedStat;
-    $: selectedStat.set(selectedValue);
+  import { selectedStat } from '../store';
+  import { STAT_GROUPS } from '../lib/metrics';
 </script>
-<div style="background-color: #1e1f22; padding-top: 10px; padding-bottom: 10px; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
-    <Select style="background-color: #2c2f33" bind:value={selectedValue}
-    >
-        {#each stats as stat}
-            <Option value={stat}>{stat}</Option>
-        {/each}
-    </Select>
-</div>
+<label class="stat-selector">Metric
+  <select id="chart-metric" aria-label="Chart metric" bind:value={$selectedStat}>
+    {#each STAT_GROUPS as group}<optgroup label={group.label}>{#each group.stats as stat}<option value={stat.key}>{stat.label}</option>{/each}</optgroup>{/each}
+  </select>
+</label>
+<style>
+  .stat-selector { display: flex; align-items: center; gap: 12px; color: var(--muted); font-weight: 500; font-size: 11px; }
+  select { margin: 0; min-height: 38px; width: 210px; padding-top: 8px; padding-bottom: 8px; font-size: 12px; }
+  @media(max-width:600px) { .stat-selector { width: 100%; } select { flex: 1; width: auto; } }
+</style>

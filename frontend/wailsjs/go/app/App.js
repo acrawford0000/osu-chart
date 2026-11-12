@@ -14,12 +14,12 @@ export function GetCredentials() {
   return window['go']['app']['App']['GetCredentials']();
 }
 
-export function GetStatsUpdates(arg1) {
-  return window['go']['app']['App']['GetStatsUpdates'](arg1);
+export function GetStatsUpdates(arg1, arg2) {
+  return window['go']['app']['App']['GetStatsUpdates'](arg1, arg2);
 }
 
-export function GetUser(arg1) {
-  return window['go']['app']['App']['GetUser'](arg1);
+export function GetUser(arg1, arg2) {
+  return window['go']['app']['App']['GetUser'](arg1, arg2);
 }
 
 export function IsClientValid() {
@@ -28,14 +28,6 @@ export function IsClientValid() {
 
 export function SaveOsuAuthCredentials(arg1, arg2) {
   return window['go']['app']['App']['SaveOsuAuthCredentials'](arg1, arg2);
-}
-
-export function SavePlayerData(arg1) {
-  return window['go']['app']['App']['SavePlayerData'](arg1);
-}
-
-export function SetGameMode(arg1) {
-  return window['go']['app']['App']['SetGameMode'](arg1);
 }
 
 export function Startup(arg1) {

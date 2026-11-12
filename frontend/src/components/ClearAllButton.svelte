@@ -1,8 +1,5 @@
 <script>
-    import ClearAllButton, { Label } from "@smui/button"
-    import { clearPlayers } from "../store";
+  import { clearPlayers } from '../store';
+  import AppIcon from './AppIcon.svelte';
 </script>
-
-<ClearAllButton class="clear-all-button" on:click={clearPlayers}>
-    <Label>Clear All</Label>
-</ClearAllButton>
+<button class="button-quiet button-danger" on:click={clearPlayers}><AppIcon name="close" size={14}/>Clear All</button>

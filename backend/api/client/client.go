@@ -5,19 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
+
 	"net/http"
+	"project/backend/api/apierror"
 	"project/backend/api/client/opts"
 	"project/backend/api/enum"
 	"project/backend/api/model"
 	"reflect"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 // OsuClient is the client used to access all the communication with the osu! API.
 // Requires osu! client ID and client secret to work.
 type OsuClient struct {
+	mu              sync.Mutex
 	httpClient      *http.Client
 	userCredentials model.UserCredentials
 	loginExpiration int64
@@ -28,7 +32,7 @@ type OsuClient struct {
 // Client ID and client secret are needed to access the API.
 func NewClient(clientID int, clientSecret string) (*OsuClient, error) {
 	client := OsuClient{
-		httpClient: http.DefaultClient,
+		httpClient: &http.Client{Timeout: 20 * time.Second},
 		userCredentials: model.UserCredentials{
 			ClientID:     model.SensitiveInt(clientID),
 			ClientSecret: model.SensitiveString(clientSecret),
@@ -47,24 +51,28 @@ func NewClient(clientID int, clientSecret string) (*OsuClient, error) {
 
 // doReq makes a request to the specified osu! API endpoint with a specified method and opts.
 func (c *OsuClient) doReq(method string, endpoint enum.Endpoint, opts opts.Opts) ([]byte, error) {
+	c.mu.Lock()
 	if err := c.loginIfTokenExpired(); err != nil {
+		c.mu.Unlock()
 		return nil, err
 	}
+	token := c.token.AccessToken
+	c.mu.Unlock()
 
-	req, err := buildRequest(endpoint, &c.token.AccessToken, method, opts)
+	req, err := buildRequest(endpoint, &token, method, opts)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create a GET request to %s: %v", endpoint, err)
 	}
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, err
-	} else if res.StatusCode < 200 || res.StatusCode > 299 {
-		log.Println(res.Request.URL.String())
-		return nil, fmt.Errorf("response status code outside of 200-299 boundaries: %v", res.StatusCode)
+		return nil, apierror.Network("osu!", err)
 	}
 
 	defer res.Body.Close()
+	if res.StatusCode < 200 || res.StatusCode > 299 {
+		return nil, apierror.Status("osu!", res.StatusCode)
+	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
@@ -94,8 +102,7 @@ func handleResponse[T any](body []byte, err error) (*T, error) {
 	var obj T
 	err = json.Unmarshal(body, &obj)
 	if err != nil {
-		log.Println(string(body))
-		return nil, err
+		return nil, apierror.New("INVALID_RESPONSE", "osu! returned unreadable player data. Please retry.")
 	}
 
 	return &obj, nil

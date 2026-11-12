@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"project/backend/api/apierror"
 	"project/backend/api/enum"
+	"project/backend/api/model"
 	"time"
 )
 
@@ -18,20 +20,31 @@ func (c *OsuClient) login() error {
 
 	res, err := c.httpClient.Post(enum.BaseEndpointOAuth.String(), "application/json", bytes.NewBuffer(tokenReqBytes))
 	if err != nil {
-		return fmt.Errorf("unable to retrieve Token from POST request: %v", err)
+		return apierror.Network("osu!", err)
 	}
 
 	defer res.Body.Close()
+	if res.StatusCode == 400 {
+		return apierror.New("AUTH_INVALID", "osu! rejected these credentials. Check your Client ID and Client Secret in Settings.")
+	}
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
+		return apierror.Status("osu!", res.StatusCode)
+	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return fmt.Errorf("unable to read response body from POST request: %v", err)
 	}
 
-	err = json.Unmarshal(body, &c.token)
+	var token model.Token
+	err = json.Unmarshal(body, &token)
 	if err != nil {
-		return fmt.Errorf("unable to unmarshal Token JSON string to Token struct: %v", err)
+		return apierror.New("INVALID_RESPONSE", "osu! returned an unreadable login response. Please retry.")
 	}
+	if token.AccessToken.GetActualValue() == "" || token.ExpiresIn <= 0 {
+		return apierror.New("AUTH_INVALID", "osu! did not issue an access token. Check your credentials in Settings.")
+	}
+	c.token = token
 
 	c.loginExpiration = time.Now().Unix() + c.token.ExpiresIn
 
