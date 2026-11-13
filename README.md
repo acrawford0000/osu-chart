@@ -21,6 +21,12 @@ History coverage depends on which snapshots osu!track has recorded. The chart di
 
 These screenshots were captured from the running Wails development server with real player data. The credentials page is intentionally omitted.
 
+### Chart
+
+Compare all players at the cursor, even when their saved dates differ. The tooltip shows each player's nearest observation and its actual date.
+
+![Chart comparison with a nearest-point tooltip for three players](docs/screenshots/chart.png)
+
 ### Players
 
 Add players, select individual game modes, and see how much history is available.
@@ -32,6 +38,10 @@ Add players, select individual game modes, and see how much history is available
 The contact page retains its cursor-responsive parallax background, with animation that settles when idle and cleans up when the page closes.
 
 ![The osu!Chart contact page](docs/screenshots/contact.png)
+
+## Windows release
+
+Download the portable Windows x64 executable or ZIP from [GitHub Releases](https://github.com/acrawford0000/osu-chart/releases/latest). The ZIP includes the app, license, and a short setup guide. No development tools are needed to run the app.
 
 ## Run locally
 

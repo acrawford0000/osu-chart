@@ -1,0 +1,89 @@
+name: Windows release
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/windows-release.yml']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (must match wails.json, for example v1.1.0)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Read release version
+        id: version
+        env:
+          REQUESTED_TAG: ${{ inputs.tag }}
+        run: |
+          $version = (Get-Content wails.json -Raw | ConvertFrom-Json).info.productVersion
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid product version.' }
+          $tag = "v$version"
+          if ($env:REQUESTED_TAG -and $env:REQUESTED_TAG -ne $tag) { throw 'Requested tag does not match wails.json.' }
+          "version=$version" >> $env:GITHUB_OUTPUT
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+      - name: Test backend
+        run: go test ./backend/...
+      - name: Install frontend
+        working-directory: frontend
+        run: npm ci
+      - name: Test frontend
+        working-directory: frontend
+        run: npm test
+      - name: Install pinned Wails CLI
+        run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.10.2
+      - name: Build Windows x64 production executable
+        run: wails build -platform windows/amd64 -o osu-chart.exe -trimpath -webview2 embed -nosyncgomod
+      - name: Package executable and checksums
+        env:
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: ./scripts/package-windows.ps1 -ExePath ./build/bin/osu-chart.exe -OutputDirectory ./release-assets -Version $env:RELEASE_VERSION
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $tag = $env:RELEASE_TAG
+          $assets = @(Get-ChildItem -LiteralPath ./release-assets -File | Select-Object -ExpandProperty FullName)
+          if ($assets.Count -ne 3) { throw 'Expected an executable, ZIP, and checksum file.' }
+          $notes = "docs/releases/$tag.md"
+          if (-not (Test-Path -LiteralPath $notes)) { throw "Release notes are missing: $notes" }
+          $existing = gh release view $tag --json isDraft,targetCommitish 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            $release = $existing | ConvertFrom-Json
+            if (-not $release.isDraft) { throw 'This release is already published; refusing to overwrite it.' }
+            if ($release.targetCommitish -ne $env:GITHUB_SHA) { throw 'The existing draft belongs to a different commit.' }
+            gh release upload $tag @assets --clobber
+          } else {
+            gh release create $tag @assets --draft --target $env:GITHUB_SHA --title "osu!Chart $tag" --notes-file $notes
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed.' }
+          gh release edit $tag --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }

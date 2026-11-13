@@ -9,5 +9,11 @@
   "author": {
     "name": "Andrew Crawford",
     "email": ""
+  },
+  "info": {
+    "companyName": "ACrawford",
+    "productName": "osu!Chart",
+    "productVersion": "1.1.0",
+    "comments": "Compare osu! player progress over time."
   }
 }
