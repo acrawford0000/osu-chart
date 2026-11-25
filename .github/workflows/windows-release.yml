@@ -3,7 +3,7 @@ name: Windows release
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/windows-release.yml']
+    paths: ['.github/workflows/windows-release.yml', 'wails.json']
   workflow_dispatch:
     inputs:
       tag:
@@ -29,7 +29,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          # Wails 2.10.2's binding generator needs a compatible Go toolchain.
+          go-version: '1.23.12'
           cache: true
       - uses: actions/setup-node@v4
         with:
@@ -55,6 +56,9 @@ jobs:
       - name: Test frontend
         working-directory: frontend
         run: npm test
+      - name: Check Svelte types
+        working-directory: frontend
+        run: npm run check -- --threshold warning
       - name: Install pinned Wails CLI
         run: go install github.com/wailsapp/wails/v2/cmd/wails@v2.10.2
       - name: Build Windows x64 production executable

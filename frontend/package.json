@@ -36,7 +36,7 @@
     "svelte": "^3.49.0",
     "svelte-check": "^2.8.0",
     "svelte-preprocess": "^4.10.7",
-    "svelte-routing": "^2.0.0",
+    "svelte-routing": "1.10.0",
     "svelte-tooltip": "^1.2.0",
     "tslib": "^2.4.0",
     "typescript": "^4.6.4",

@@ -2,7 +2,7 @@
 param(
     [Parameter(Mandatory)][string]$ExePath,
     [Parameter(Mandatory)][string]$OutputDirectory,
-    [string]$Version = '1.1.0'
+    [string]$Version = '1.1.1'
 )
 $ErrorActionPreference = 'Stop'
 if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw 'Version must use major.minor.patch format.' }

@@ -1,4 +1,4 @@
-osu!Chart 1.1.0 - Windows x64
+osu!Chart 1.1.1 - Windows x64
 
 Run osu-chart.exe. You do not need Go, Node.js, npm, or Wails installed.
 Microsoft Edge WebView2 Runtime is required. Its Microsoft bootstrap installer

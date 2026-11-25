@@ -14,7 +14,10 @@
     { icon: 'settings', text: 'Settings', path: '/settings' },
     { icon: 'contact', text: 'Contact', path: '/contact' }
   ];
-  const location = useLocation();
+  // svelte-routing 1.x returns a readable store, but declares this hook as getContext.
+  const location = /** @type {import('svelte/store').Readable<{ pathname: string }>} */ (
+    /** @type {unknown} */ (useLocation())
+  );
 </script>
 
 <aside class="sidebar">
